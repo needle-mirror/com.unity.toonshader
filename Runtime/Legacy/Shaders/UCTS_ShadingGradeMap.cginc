@@ -21,6 +21,7 @@ struct VertexInput {
 #elif _IS_ANGELRING_ON
     float2 texcoord1 : TEXCOORD1;
 #endif
+    UNITY_VERTEX_INPUT_INSTANCE_ID //
 };
 #endif
 struct VertexOutput {
@@ -49,6 +50,8 @@ struct VertexOutput {
     UNITY_FOG_COORDS(9)
     //
 #endif
+    UNITY_VERTEX_INPUT_INSTANCE_ID
+    UNITY_VERTEX_OUTPUT_STEREO
 };
 
 //---------------------------------------------------------------------------------------------------------------------
@@ -72,6 +75,9 @@ struct VertexOutput {
             //
             VertexOutput vert (VertexInput v) {
                 VertexOutput o = (VertexOutput)0;
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_TRANSFER_INSTANCE_ID(v, o);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
                 o.uv0 = v.texcoord0;
 //v.2.0.4
 #ifdef _IS_ANGELRING_OFF
@@ -107,6 +113,9 @@ struct VertexOutput {
 #endif // UNITY_CAN_COMPILE_TESSELLATION
 #endif // TESSELLATION_ON
             float4 frag(VertexOutput i, fixed facing : VFACE) : SV_TARGET {
+                UNITY_SETUP_INSTANCE_ID(i);
+                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
+		
                 i.normalDir = normalize(i.normalDir);
                 float3x3 tangentTransform = float3x3( i.tangentDir, i.bitangentDir, i.normalDir);
                 float3 viewDirection = normalize(_WorldSpaceCameraPos.xyz - i.posWorld.xyz);
@@ -333,7 +342,7 @@ struct VertexOutput {
                 //v.2.0.5: If Added lights is directional, set 0 as _LightIntensity
                 float _LightIntensity = lerp(0,(0.299*_LightColor0.r + 0.587*_LightColor0.g + 0.114*_LightColor0.b)*attenuation,_WorldSpaceLightPos0.w) ;
                 //v.2.0.5: Filtering the high intensity zone of PointLights
-                float3 Set_LightColor = lerp(lightColor,lerp(lightColor,min(lightColor,_LightColor0.rgb*attenuation*_1st_ShadeColor_Step),_WorldSpaceLightPos0.w),_Is_Filter_HiCutPointLightColor);
+                float3 Set_LightColor = lightColor;
                 //
                 float3 Set_BaseColor = lerp( (_MainTex_var.rgb*_BaseColor.rgb*_LightIntensity), ((_MainTex_var.rgb*_BaseColor.rgb)*Set_LightColor), _Is_LightColor_Base );
                 //v.2.0.5
@@ -372,18 +381,18 @@ struct VertexOutput {
 
 //v.2.0.4
 #ifdef _IS_TRANSCLIPPING_OFF
-	#ifdef _IS_PASS_FWDBASE
-	                fixed4 finalRGBA = fixed4(finalColor,1);
-	#elif _IS_PASS_FWDDELTA
-	                fixed4 finalRGBA = fixed4(finalColor,0);
-	#endif
+#  ifdef _IS_PASS_FWDBASE
+                fixed4 finalRGBA = fixed4(finalColor,1);
+#  elif _IS_PASS_FWDDELTA
+                fixed4 finalRGBA = fixed4(finalColor,0);
+#  endif
 #elif _IS_TRANSCLIPPING_ON
 	                float Set_Opacity = saturate((_Inverse_Clipping_var+_Tweak_transparency));
-	#ifdef _IS_PASS_FWDBASE
-	                fixed4 finalRGBA = fixed4(finalColor,Set_Opacity);
-	#elif _IS_PASS_FWDDELTA
-	                fixed4 finalRGBA = fixed4(finalColor * Set_Opacity,0);
-	#endif
+#  ifdef _IS_PASS_FWDBASE
+                fixed4 finalRGBA = fixed4(finalColor,Set_Opacity);
+#  elif _IS_PASS_FWDDELTA
+                fixed4 finalRGBA = fixed4(finalColor * Set_Opacity,0);
+#  endif
 #endif
 
                 UNITY_APPLY_FOG(i.fogCoord, finalRGBA);

@@ -6,10 +6,10 @@ using UnityEngine;
 using UnityEditor;
 using System;
 using UnityEngine.Rendering;
-using UnityEditor.Rendering.Toon;
-namespace UnityEditor.Rendering.HighDefinition.Toon
+
+namespace UnityEditor.Rendering.Toon
 {
-    internal partial class HDRPToonGUI : UTS_GUIBase
+    internal partial class UTS3GUI
     {
         enum TessellationMode
         {
@@ -21,12 +21,12 @@ namespace UnityEditor.Rendering.HighDefinition.Toon
         {
             public const string header = "Tessellation Options";
 
-            public static string tessellationModeStr = "Tessellation Mode";
+            public static GUIContent tessellationModeText = new GUIContent("Tessellation Mode","Tessellation Mode. None/Phong.");
 
             public static readonly string[] tessellationModeNames = System.Enum.GetNames(typeof(
             TessellationMode));
             public static GUIContent tessellationText = new GUIContent("Tessellation Options", "Tessellation options");
-            public static GUIContent tessellationFactorText = new GUIContent("Tessellation Factor", "Controls the strength of the tessellation effect. Higher values result in more tessellation. Maximum tessellation factor is 15 on the Xbox One and PS4");
+            public static GUIContent tessellationFactorText = new GUIContent("Tessellation Factor", "Controls the strength of the tessellation effect. Higher values result in more tessellation. Maximum tessellation factor is 15 on the Xbox One and PS4.");
             public static GUIContent tessellationFactorMinDistanceText = new GUIContent("Start Fade Distance", "Sets the distance (in meters) at which tessellation begins to fade out.");
             public static GUIContent tessellationFactorMaxDistanceText = new GUIContent("End Fade Distance", "Sets the maximum distance (in meters) to the Camera where HDRP tessellates triangle.");
             public static GUIContent tessellationFactorTriangleSizeText = new GUIContent("Triangle Size", "Sets the desired screen space size of triangles (in pixels). Smaller values result in smaller triangle.");
@@ -57,7 +57,7 @@ namespace UnityEditor.Rendering.HighDefinition.Toon
 
 
 
-        internal override  void FindTessellationProperties(MaterialProperty[] props)
+        internal   void FindTessellationPropertiesHDRP(MaterialProperty[] props)
         {
             tessellationMode = FindProperty(kTessellationMode, props, false);
             tessellationFactor = FindProperty(kTessellationFactor, props, false);
@@ -78,7 +78,7 @@ namespace UnityEditor.Rendering.HighDefinition.Toon
                 material.DisableKeyword(keyword);
         }
 
-        internal override void ApplyTessellation(Material material)
+        internal  void ApplyTessellationHDRP(Material material)
         {
             if (material.HasProperty(kTessellationMode))
             {
@@ -102,7 +102,7 @@ namespace UnityEditor.Rendering.HighDefinition.Toon
             var mode = (TessellationMode)tessellationMode.floatValue;
 
             EditorGUI.BeginChangeCheck();
-            mode = (TessellationMode)EditorGUILayout.Popup(TessellationStyles.tessellationModeStr, (int)mode, TessellationStyles.tessellationModeNames);
+            mode = (TessellationMode)EditorGUILayout.Popup(TessellationStyles.tessellationModeText, (int)mode, TessellationStyles.tessellationModeNames);
             if (EditorGUI.EndChangeCheck())
             {
                 m_MaterialEditor.RegisterPropertyChangeUndo("Tessellation Mode");
@@ -112,25 +112,9 @@ namespace UnityEditor.Rendering.HighDefinition.Toon
             EditorGUI.showMixedValue = false;
         }
 
-        static bool _TessellationSettings_Foldout = false;
-        internal override void TessellationSetting(Material material)
-        {
-            if (tessellationMode == null)
-            {
-                return;
-            }
-
-            _TessellationSettings_Foldout = Foldout(_TessellationSettings_Foldout, "【Tessellation Settings】");
-            if (!_TessellationSettings_Foldout)
-            {
-                return;
-            }
 
 
-            DrawTesselationGUI();
-        }
-
-        void DrawTesselationGUI()
+        void GUI_TessellationHDRP(Material material)
         {
             TessellationModePopup();
             m_MaterialEditor.ShaderProperty(tessellationFactor, TessellationStyles.tessellationFactorText);

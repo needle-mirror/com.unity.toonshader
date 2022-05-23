@@ -10,6 +10,7 @@ struct VertexInput {
     float3 normal : NORMAL;
     float4 tangent : TANGENT;
     float2 texcoord0 : TEXCOORD0;
+    UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
 #endif
@@ -20,6 +21,8 @@ struct VertexOutput {
     float3 normalDir : TEXCOORD1;
     float3 tangentDir : TEXCOORD2;
     float3 bitangentDir : TEXCOORD3;
+    UNITY_VERTEX_INPUT_INSTANCE_ID
+    UNITY_VERTEX_OUTPUT_STEREO
 };
 
 //---------------------------------------------------------------------------------------------------------------------
@@ -33,6 +36,9 @@ struct VertexOutput {
 
             VertexOutput vert (VertexInput v) {
                 VertexOutput o = (VertexOutput)0;
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_TRANSFER_INSTANCE_ID(v, o);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
                 o.uv0 = v.texcoord0;
                 float4 objPos = mul ( unity_ObjectToWorld, float4(0,0,0,1) );
                 float2 Set_UV0 = o.uv0;
@@ -72,13 +78,13 @@ struct VertexOutput {
             }
 #ifdef TESSELLATION_ON
 #ifdef UNITY_CAN_COMPILE_TESSELLATION
-			// tessellation domain shader
-			[UNITY_domain("tri")]
-			VertexOutput ds_surf(UnityTessellationFactors tessFactors, const OutputPatch<InternalTessInterp_VertexInput, 3> vi, float3 bary : SV_DomainLocation)
-			{
-				VertexInput v = _ds_VertexInput(tessFactors, vi, bary);
-				return vert(v);
-			}
+            // tessellation domain shader
+            [UNITY_domain("tri")]
+            VertexOutput ds_surf(UnityTessellationFactors tessFactors, const OutputPatch<InternalTessInterp_VertexInput, 3> vi, float3 bary : SV_DomainLocation)
+            {
+                VertexInput v = _ds_VertexInput(tessFactors, vi, bary);
+                return vert(v);
+            }
 #endif // UNITY_CAN_COMPILE_TESSELLATION
 #endif // TESSELLATION_ON
             float4 frag(VertexOutput i) : SV_Target{

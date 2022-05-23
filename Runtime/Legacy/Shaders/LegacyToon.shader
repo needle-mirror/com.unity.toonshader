@@ -7,15 +7,15 @@ Shader "Toon (Built-in)" {
         [HideInInspector] _simpleUI ("SimpleUI", Int ) = 0
         [HideInInspector][Enum(OFF, 0, ON, 1)] _isUnityToonshader("Material is touched by Unity Toon Shader", Int) = 1
         [HideInInspector] _utsVersionX("VersionX", Float) = 0
-        [HideInInspector] _utsVersionY("VersionY", Float) = 6
-        [HideInInspector] _utsVersionZ("VersionZ", Float) = 1
+        [HideInInspector] _utsVersionY("VersionY", Float) = 7
+        [HideInInspector] _utsVersionZ("VersionZ", Float) = 0
         [HideInInspector] _utsTechnique ("Technique", int ) = 0 //DWF
         [HideInInspector] _AutoRenderQueue("Automatic Render Queue ", int) = 1
 
         [Enum(OFF, 0, StencilOut, 1, StencilMask, 2)] _StencilMode("StencilMode", int) = 0
         // these are set in UniversalToonGUI.cs in accordance with _StencilMode
         _StencilComp("Stencil Comparison", Float) = 8
-        _StencilNo("Stencil No", Float) = 1
+        _StencilNo("Stencil No", Range(0, 255)) = 1
         _StencilOpPass("Stencil Operation", Float) = 0
         _StencilOpFail("Stencil Operation", Float) = 0
         [Enum(OFF, 0, ON, 1,] _TransparentEnabled("Transparent Mode", int) = 0
@@ -194,9 +194,9 @@ Shader "Toon (Built-in)" {
         //GI Intensity
         _GI_Intensity ("GI_Intensity", Range(0, 1)) = 0
         //For VR Chat under No effective light objects
-        _Unlit_Intensity ("Unlit_Intensity", Range(0.001, 4)) = 1
+        _Unlit_Intensity ("Unlit_Intensity", Range(0, 4)) = 0
         //v.2.0.5 
-        [Toggle(_)] _Is_Filter_LightColor ("VRChat : SceneLights HiCut_Filter", Float ) = 0
+        [Toggle(_)] _Is_Filter_LightColor ("VRChat : SceneLights HiCut_Filter", Float ) = 1
         //Built-in Light Direction
         [Toggle(_)] _Is_BLD ("Advanced : Activate Built-in Light Direction", Float ) = 0
         _Offset_X_Axis_BLD (" Offset X-Axis (Built-in Light Direction)", Range(-1, 1)) = -0.05
@@ -230,6 +230,7 @@ Shader "Toon (Built-in)" {
             //#pragma fragmentoption ARB_precision_hint_fastest
             //#pragma multi_compile_shadowcaster
             //#pragma multi_compile_fog
+            #pragma multi_compile_instancing
             #pragma only_renderers d3d9 d3d11 glcore gles gles3 metal vulkan xboxone ps4 switch
             #pragma target 3.0
             //V.2.0.4
@@ -268,6 +269,7 @@ Shader "Toon (Built-in)" {
             #include "Lighting.cginc"
             #pragma multi_compile_fwdbase_fullshadows
             #pragma multi_compile_fog
+            #pragma multi_compile_instancing
             #pragma only_renderers d3d9 d3d11 glcore gles gles3 metal vulkan xboxone ps4 switch
             #pragma target 3.0
             // DoubleShadeWithFeather and ShadingGradeMap use different fragment shader.  
@@ -316,6 +318,7 @@ Shader "Toon (Built-in)" {
             //for Unity2018.x
             #pragma multi_compile_fwdadd_fullshadows
             #pragma multi_compile_fog
+            #pragma multi_compile_instancing
             #pragma only_renderers d3d9 d3d11 glcore gles gles3 metal vulkan xboxone ps4 switch
             #pragma target 3.0
             // DoubleShadeWithFeather and ShadingGradeMap use different fragment shader.  
@@ -363,7 +366,6 @@ Shader "Toon (Built-in)" {
             #pragma multi_compile_shadowcaster
             #pragma multi_compile_fog
             #pragma only_renderers d3d9 d3d11 glcore gles gles3 metal vulkan xboxone ps4 switch
-            #pragma shader_feature _ _SYNTHESIZED_TEXTURE
             #pragma target 3.0
             //v.2.0.4
             #pragma shader_feature _IS_CLIPPING_OFF _IS_CLIPPING_MODE _IS_CLIPPING_TRANSMODE
@@ -373,5 +375,5 @@ Shader "Toon (Built-in)" {
 //ToonCoreEnd
     }
     FallBack "Legacy Shaders/VertexLit"
-    CustomEditor "UnityEditor.Rendering.Builtin.Toon.UTS2GUI"
+    CustomEditor "UnityEditor.Rendering.Toon.UTS3GUI"
 }

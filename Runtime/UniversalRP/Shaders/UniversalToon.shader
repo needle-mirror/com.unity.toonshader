@@ -8,8 +8,8 @@ Shader "Universal Render Pipeline/Toon" {
         // Versioning of material to help for upgrading
         [HideInInspector] [Enum(OFF, 0, ON, 1)] _isUnityToonshader("Material is touched by Unity Toon Shader", Int) = 1
         [HideInInspector] _utsVersionX("VersionX", Float) = 0
-        [HideInInspector] _utsVersionY("VersionY", Float) = 6
-        [HideInInspector] _utsVersionZ("VersionZ", Float) = 1
+        [HideInInspector] _utsVersionY("VersionY", Float) = 7
+        [HideInInspector] _utsVersionZ("VersionZ", Float) = 0
 
         [HideInInspector] _utsTechnique("Technique", int) = 0 //DWF
         [HideInInspector] _AutoRenderQueue("Automatic Render Queue ", int) = 1
@@ -201,9 +201,9 @@ Shader "Universal Render Pipeline/Toon" {
         //GI Intensity
         _GI_Intensity ("GI_Intensity", Range(0, 1)) = 0
         //For VR Chat under No effective light objects
-        _Unlit_Intensity ("Unlit_Intensity", Range(0.001, 4)) = 1
+        _Unlit_Intensity ("Unlit_Intensity", Range(0, 4)) = 0
         //v.2.0.5 
-        [Toggle(_)] _Is_Filter_LightColor ("VRChat : SceneLights HiCut_Filter", Float ) = 0
+        [Toggle(_)] _Is_Filter_LightColor ("VRChat : SceneLights HiCut_Filter", Float ) = 1
         //Built-in Light Direction
         [Toggle(_)] _Is_BLD ("Advanced : Activate Built-in Light Direction", Float ) = 0
         _Offset_X_Axis_BLD (" Offset X-Axis (Built-in Light Direction)", Range(-1, 1)) = -0.05
@@ -441,5 +441,5 @@ Shader "Universal Render Pipeline/Toon" {
 
 //ToonCoreEnd
     }
-    CustomEditor "UnityEditor.Rendering.Universal.Toon.ShaderGUI.UniversalToonGUI"
+    CustomEditor "UnityEditor.Rendering.Toon.UTS3GUI"
 }
