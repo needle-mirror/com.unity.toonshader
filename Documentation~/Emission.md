@@ -1,11 +1,12 @@
 # Emission Settings
 
-Emission controls the color and intensity of light emitted from the surface. When you use an emissive Material in your Scene
-, it appears as a visible source of light. The meshes
- appear to be self-illuminated.
+Emission controls the color and intensity of light emitted from the surface. When you use an emissive Material in your Scene, it appears as a visible source of light. The meshes appear to be self-illuminated.
 
 <img src="images/EmissiveAnimation.png" height="256">
+<br/><br/>
 
+<img src="images/InspectorEmissionSettings.png" width="573">
+<br/><br/>
 
 * [Emission Map](#emission-map)
 * [Emission Map Animation](#emission-map-animation)
@@ -31,7 +32,7 @@ Primarily used with the Bloom Post Effect, Luminous objects can be represented.
 | <img src="images/EmissionMapSample.png" height="256"> | 
 
 ## Emission Map Animation
-When Enabled, the UV and Color of the Emission Map are animated.
+When Enabled, the UV and Color of the **Emission Map** are animated.
 
  <img src="images/EmissionAnimation.gif" height="256"> 
 
@@ -55,7 +56,7 @@ Controls the animated scrolling of the emissive texture.
 
 
 ### Scroll U/X direction
-Specifies how much the Emissive texture should scroll in the u-direction (x-axis direction) when updating the animation. The scrolling animation is ultimately determined by Base Speed (Time) x Scroll U Direction x Scroll V Direction.
+Specifies how much the Emissive texture should scroll in the U-direction (x-axis direction) when updating the animation. The scrolling animation is ultimately determined by Base Speed (Time) x Scroll U Direction x Scroll V Direction.
 
 ### Scroll V/Y direction
 Specifies how much the Emissive texture should scroll in the V-direction (y-axis direction) when updating the animation. The scrolling animation is ultimately determined by Base Speed (Time) x Scroll U Direction x Scroll V Direction.
@@ -74,7 +75,7 @@ When enabled, you can set PingPong (back and forth) in the direction of the anim
 The color that is multiplied by the Emissive texture is changed by linear interpolation (Lerp) toward the Destination Color.
 
 #### Destination Color
-Destination color above, must be specified in HDR.
+Target color for [Color Shifting with Time](#color-shifting-with-time), must be specified in HDR.
 
 #### Color Shifting Speed (Time)
 Sets the reference speed for color shift. When the value is 1, one cycle should take approximately 6 seconds.
@@ -83,10 +84,10 @@ Sets the reference speed for color shift. When the value is 1, one cycle should 
 
 
 ### Color Shifting with View Angle
-Emissive color shifts in accordance with view angle.
+Emissive color shifts in accordance with view angle. The further out from the front of the camera, the more it changes to [Shifting Target Color](#shifting-target-color).
 
 #### Shifting Target Color
-Target color for Color Shifting with View Angle which must be specified in HDR.
+Target color for [Color Shifting with View Angle](#color-shifting-with-view-angle) which must be specified in HDR. 
 
 <img src="images/ColorShiftingWithView.gif" height="256">
 

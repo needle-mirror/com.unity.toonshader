@@ -2,6 +2,8 @@
 
 The Unity Toon Shader mode that controls what settings are exposed in the shader.
 
+<img src="images/InspectorMode.png" >
+<br/><br/>
 
 |  Value   |  Description  | Image  |
 | ---- | ---- | ---- |

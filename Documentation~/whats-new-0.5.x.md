@@ -1,9 +1,10 @@
 <a id="AOV"></a>
 ## HDRP AOV
 
-Added compatibility with HDRP AOV, which makes it possible to record Beauty, Albedo, Normal and other AOV sequential images using Recorder later than 3.0.
+From version 0.5.x, the Unity Toon Shader is compatible with HDRP Arbitrary Output Variables (AOV). This means you can now record Beauty, Albedo, Normal and other AOV sequential images using Recorder version 3.0 or later.
 
-* Known Issue:
-UTS outline is also output when recording with AOV image sequences, in such cases, please disable OUTLINE in Meterial Inspectors.
+When you use HDRP AOV, you need to disable [Outline](Outline.md). For more information, refer to [Known Issues](Known-issue.md).
+
+
 
 

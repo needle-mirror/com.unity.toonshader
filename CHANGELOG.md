@@ -1,4 +1,14 @@
 # Changelog
+## [0.7.3-preview] - 2022-06-15
+### Updated:
+* HDRP shader is compatible with 2022.2.0 a16.
+* Attribute class for Mono-behaviors for UTS3.
+* Mac Graphics Tests use rsync instead of scp.
+* New retry count to several commands in Mac graphics tests.
+* 3 basic color is now Three basic colors.
+* `NormalMap Settings` is now an independent block.
+* Updated docs.
+
 ## [0.7.2-preview] - 2022-05-30
 ### Fixed:
 * Dead links for Toon EV adjustment HELP URL Buttons.

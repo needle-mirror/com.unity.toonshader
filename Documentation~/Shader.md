@@ -2,6 +2,9 @@
 
 The Shader Settings provide basic settings that are not specific to  cel-shading but are needed for general CG.
 
+<img src="images/InspectorShaderSettings.png" width="573">
+<br/><br/>
+
 * [Culling Mode](#culling-Mode)
 * [Auto Render Queue](#auto-render-queue)
   * [Render Queue](#render-queue)
@@ -51,7 +54,7 @@ Allow for the use of a texture to control the transparency of the shader.
 | ---- | ---- | 
 |  Off | Disable clipping. |
 |  On  | Enable clipping. |
-|  Clip Transparency  | Enable clipping with Transparency Level](#transparency-level). |
+|  Clip Transparency  | [Enable clipping with Transparency Level](#transparency-level). |
 
 ### Clipping Mask
 A grayscale texture which utilises its brightness to control transparency.
