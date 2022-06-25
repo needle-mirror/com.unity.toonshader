@@ -1,7 +1,7 @@
 {
   "name": "com.unity.toonshader",
   "displayName": "Unity Toon Shader",
-  "version": "0.7.3-preview",
+  "version": "0.7.4-preview",
   "unity": "2019.4",
   "description": "Unity Toon Shader (Unity-Chan Toon Shader 3) is a toon shader for images and video that is designed to meet the needs of creators working on cel-shaded 3DCG animations.\nUnlike other pre-render toon shaders, all features can be adjusted in real time on Unity, which is the greatest feature of UTS.\n\nUTS has great power and makes a wide variety of character designs possible, from cel-shaded to light novel illustration styles.\n\nUTS has the 3 basic layers of Base Color, 1st Shade Color, and 2nd Shade Color, colors and textures can also accept a wide variety of customization options, such as High Color, Rim Light, MatCap (sphere mapping), and Emissive (light emission).The level of gradation (feather) between colors can also be adjusted in Unity in real-time.\n\nMore precisely, View documentation above.",
   "dependencies": {
@@ -31,14 +31,14 @@
     "Hiroki Omae <hiroki@unity3d.com> (https://github.com/hiroki-o)"
   ],
   "_upm": {
-    "changelog": "### Updated:\n* HDRP shader is compatible with 2022.2.0 a16.\n* Attribute class for Mono-behaviors for UTS3.\n* Mac Graphics Tests use rsync instead of scp.\n* New retry count to several commands in Mac graphics tests.\n* 3 basic color is now Three basic colors.\n* `NormalMap Settings` is now an independent block.\n* Updated docs."
+    "changelog": "### Fixed:\n* HDRP:Metaverse light was not working properly.\n### Updated:\n* Added `Getting Started` to the documentation.\n* Added more description to Outline doc.\n* Added more description to RimLight doc.\n* Mended Meteverse doc to use property, insted of indented menus.\n* Mended SceneLightSetting doc to use property instead of indented menus.\n* Re-wrote the doc to install samples.\n* Updated some images in docs.\n* Improved some wording in documentation."
   },
   "upmCi": {
-    "footprint": "ceb070a8bad6244904be45fda1f33d04272bac6d"
+    "footprint": "e36a4323ea508f3b3c22269d542be40b500a20a6"
   },
   "repository": {
     "url": "https://github.com/Unity-Technologies/com.unity.toonshader.git",
     "type": "git",
-    "revision": "f3247771875a2b6a715540a9d7ae13e57dec9a19"
+    "revision": "3279b904abacf5883ceaa36ff00b304806eb52d1"
   }
 }
