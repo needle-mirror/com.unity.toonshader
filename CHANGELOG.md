@@ -1,4 +1,7 @@
 # Changelog
+## [0.7.5-preview] - 2022-06-27
+* Improved the logic for blending outlines into a scene when there are no directional lights in the scene.
+
 ## [0.7.4-preview] - 2022-06-25
 ### Fixed:
 * HDRP:Metaverse light was not working properly.
