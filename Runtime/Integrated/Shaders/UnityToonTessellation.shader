@@ -1,25 +1,257 @@
-//Unity Toon Shader/HDRP
+﻿//Unity Toon Shader
 //nobuyuki@unity3d.com
-//toshiyuki@unity3d.com (Universal RP/HDRP) 
+//toshiyuki@unity3d.com (Intengrated) 
 
-Shader "HDRP/ToonTessellation"
-{
-    Properties
-    {
-        // -----------------------------------------------------------------------------
-        // parameters for UTS
-        // -----------------------------------------------------------------------------
-        [HideInInspector] _simpleUI("SimpleUI", Int) = 0
-        // Versioning of material to help for upgrading
-        [HideInInspector] [Enum(OFF, 0, ON, 1)] _isUnityToonshader("Material is touched by Unity Toon Shader", Int) = 1
+Shader "Toon(Tessellation)" {
+    Properties {
+        [HideInInspector] _simpleUI ("SimpleUI", Int ) = 0
+        [HideInInspector][Enum(OFF, 0, ON, 1)] _isUnityToonshader("Material is touched by Unity Toon Shader", Int) = 1
         [HideInInspector] _utsVersionX("VersionX", Float) = 0
-        [HideInInspector] _utsVersionY("VersionY", Float) = 7
-        [HideInInspector] _utsVersionZ("VersionZ", Float) = 5
+        [HideInInspector] _utsVersionY("VersionY", Float) = 8
+        [HideInInspector] _utsVersionZ("VersionZ", Float) = 0
+        [HideInInspector] _utsTechnique ("Technique", int ) = 0 //DWF
+        [HideInInspector] _AutoRenderQueue("Automatic Render Queue ", int) = 1
+
+        [Enum(OFF, 0, StencilOut, 1, StencilMask, 2)] _StencilMode("StencilMode", int) = 0
+        // these are set in UniversalToonGUI.cs in accordance with _StencilMode
+        _StencilComp("Stencil Comparison", Float) = 8
+        _StencilNo("Stencil No", Float) = 1
+        _StencilOpPass("Stencil Operation", Float) = 0
+        _StencilOpFail("Stencil Operation", Float) = 0
+        [Enum(OFF, 0, ON, 1,] _TransparentEnabled("Transparent Mode", int) = 0
+
+        // DoubleShadeWithFeather
+        // 0:_IS_CLIPPING_OFF      1:_IS_CLIPPING_MODE    2:_IS_CLIPPING_TRANSMODE
+        // ShadingGradeMap
+        // 0:_IS_TRANSCLIPPING_OFF 1:_IS_TRANSCLIPPING_ON
+        [Enum(OFF, 0, ON, 1, TRANSMODE, 2)] _ClippingMode("CliippingMode", int) = 0
+
+ 
+        [Enum(OFF, 0, FRONT, 1, BACK, 2)] _CullMode("Cull Mode", int) = 2  //OFF/FRONT/BACK
+        [Enum(OFF, 0, ONT, 1)]	_ZWriteMode("ZWrite Mode", int) = 1  //OFF/ON
+        [Enum(OFF, 0, ONT, 1)]	_ZOverDrawMode("ZOver Draw Mode", Float) = 0  //OFF/ON
+        _SPRDefaultUnlitColorMask("SPRDefaultUnlit Path Color Mask", int) = 15
+        [Enum(OFF, 0, FRONT, 1, BACK, 2)] _SRPDefaultUnlitColMode("SPRDefaultUnlit  Cull Mode", int) = 1  //OFF/FRONT/BACK
+        // ClippingMask paramaters from Here.
+        _ClippingMask("ClippingMask", 2D) = "white" {}
+
+        [HideInInspector] _IsBaseMapAlphaAsClippingMask("IsBaseMapAlphaAsClippingMask", Float) = 0
+        //
+        [Toggle(_)] _Inverse_Clipping("Inverse_Clipping", Float) = 0
+        _Clipping_Level("Clipping_Level", Range(0, 1)) = 0
+        _Tweak_transparency("Tweak_transparency", Range(-1, 1)) = 0
+        // ClippingMask paramaters to Here.
 
 
-        // Reminder. Color here are in linear but the UI (color picker) do the conversion sRGB to linear
-        _BaseColor("BaseColor", Color) = (1,1,1,1)
-        _BaseColorMap("BaseColorMap", 2D) = "white" {}
+        [Enum(OFF,0,FRONT,1,BACK,2)] _CullMode("Cull Mode", int) = 2  //OFF/FRONT/BACK
+
+
+
+
+
+
+        _MainTex ("BaseMap", 2D) = "white" {}
+        [HideInInspector] _BaseMap ("BaseMap", 2D) = "white" {}
+        _BaseColor ("BaseColor", Color) = (1,1,1,1)
+        //v.2.0.5 : Clipping/TransClipping for SSAO Problems in PostProcessing Stack.
+        //If you want to go back the former SSAO results, comment out the below line.
+        [HideInInspector] _Color ("Color", Color) = (1,1,1,1)
+        //
+        [Toggle(_)] _Is_LightColor_Base ("Is_LightColor_Base", Float ) = 1
+        _1st_ShadeMap ("1st_ShadeMap", 2D) = "white" {}
+        //v.2.0.5
+        [Toggle(_)] _Use_BaseAs1st ("Use BaseMap as 1st_ShadeMap", Float ) = 0
+        _1st_ShadeColor ("1st_ShadeColor", Color) = (1,1,1,1)
+        [Toggle(_)] _Is_LightColor_1st_Shade ("Is_LightColor_1st_Shade", Float ) = 1
+        _2nd_ShadeMap ("2nd_ShadeMap", 2D) = "white" {}
+        //v.2.0.5
+        [Toggle(_)] _Use_1stAs2nd ("Use 1st_ShadeMap as 2nd_ShadeMap", Float ) = 0
+        _2nd_ShadeColor ("2nd_ShadeColor", Color) = (1,1,1,1)
+        [Toggle(_)] _Is_LightColor_2nd_Shade ("Is_LightColor_2nd_Shade", Float ) = 1
+        _NormalMap ("NormalMap", 2D) = "bump" {}
+        _BumpScale ("Normal Scale", Range(0, 1)) = 1
+        [Toggle(_)] _Is_NormalMapToBase ("Is_NormalMapToBase", Float ) = 0
+        //v.2.0.4.4
+        [Toggle(_)] _Set_SystemShadowsToBase ("Set_SystemShadowsToBase", Float ) = 1
+        _Tweak_SystemShadowsLevel ("Tweak_SystemShadowsLevel", Range(-0.5, 0.5)) = 0
+        //v.2.0.6
+        _BaseColor_Step ("BaseColor_Step", Range(0, 1)) = 0.5
+        _BaseShade_Feather ("Base/Shade_Feather", Range(0.0001, 1)) = 0.0001
+        _ShadeColor_Step ("ShadeColor_Step", Range(0, 1)) = 0
+        _1st2nd_Shades_Feather ("1st/2nd_Shades_Feather", Range(0.0001, 1)) = 0.0001
+        [HideInInspector] _1st_ShadeColor_Step ("1st_ShadeColor_Step", Range(0, 1)) = 0.5
+        [HideInInspector] _1st_ShadeColor_Feather ("1st_ShadeColor_Feather", Range(0.0001, 1)) = 0.0001
+        [HideInInspector] _2nd_ShadeColor_Step ("2nd_ShadeColor_Step", Range(0, 1)) = 0
+        [HideInInspector] _2nd_ShadeColor_Feather ("2nd_ShadeColor_Feather", Range(0.0001, 1)) = 0.0001
+        //v.2.0.5
+        _StepOffset ("Step_Offset (ForwardAdd Only)", Range(-0.5, 0.5)) = 0
+        [Toggle(_)] _Is_Filter_HiCutPointLightColor ("PointLights HiCut_Filter (ForwardAdd Only)", Float ) = 1
+        //
+        _Set_1st_ShadePosition ("Set_1st_ShadePosition", 2D) = "white" {}
+        _Set_2nd_ShadePosition ("Set_2nd_ShadePosition", 2D) = "white" {}
+        _ShadingGradeMap("ShadingGradeMap", 2D) = "white" {}
+        //v.2.0.6
+        _Tweak_ShadingGradeMapLevel("Tweak_ShadingGradeMapLevel", Range(-0.5, 0.5)) = 0
+        _BlurLevelSGM("Blur Level of ShadingGradeMap", Range(0, 10)) = 0
+        //
+        _HighColor ("HighColor", Color) = (0,0,0,1)
+//v.2.0.4 HighColor_Tex
+        _HighColor_Tex ("HighColor_Tex", 2D) = "white" {}
+        [Toggle(_)] _Is_LightColor_HighColor ("Is_LightColor_HighColor", Float ) = 1
+        [Toggle(_)] _Is_NormalMapToHighColor ("Is_NormalMapToHighColor", Float ) = 0
+        _HighColor_Power ("HighColor_Power", Range(0, 1)) = 0
+        [Toggle(_)] _Is_SpecularToHighColor ("Is_SpecularToHighColor", Float ) = 0
+        [Toggle(_)] _Is_BlendAddToHiColor ("Is_BlendAddToHiColor", Float ) = 0
+        [Toggle(_)] _Is_UseTweakHighColorOnShadow ("Is_UseTweakHighColorOnShadow", Float ) = 0
+        _TweakHighColorOnShadow ("TweakHighColorOnShadow", Range(0, 1)) = 0
+//HiColorMask
+        _Set_HighColorMask ("Set_HighColorMask", 2D) = "white" {}
+        _Tweak_HighColorMaskLevel ("Tweak_HighColorMaskLevel", Range(-1, 1)) = 0
+        [Toggle(_)] _RimLight ("RimLight", Float ) = 0
+        _RimLightColor ("RimLightColor", Color) = (1,1,1,1)
+        [Toggle(_)] _Is_LightColor_RimLight ("Is_LightColor_RimLight", Float ) = 1
+        [Toggle(_)] _Is_NormalMapToRimLight ("Is_NormalMapToRimLight", Float ) = 0
+        _RimLight_Power ("RimLight_Power", Range(0, 1)) = 0.1
+        _RimLight_InsideMask ("RimLight_InsideMask", Range(0.0001, 1)) = 0.0001
+        [Toggle(_)] _RimLight_FeatherOff ("RimLight_FeatherOff", Float ) = 0
+//RimLight
+        [Toggle(_)] _LightDirection_MaskOn ("LightDirection_MaskOn", Float ) = 0
+        _Tweak_LightDirection_MaskLevel ("Tweak_LightDirection_MaskLevel", Range(0, 0.5)) = 0
+        [Toggle(_)] _Add_Antipodean_RimLight ("Add_Antipodean_RimLight", Float ) = 0
+        _Ap_RimLightColor ("Ap_RimLightColor", Color) = (1,1,1,1)
+        [Toggle(_)] _Is_LightColor_Ap_RimLight ("Is_LightColor_Ap_RimLight", Float ) = 1
+        _Ap_RimLight_Power ("Ap_RimLight_Power", Range(0, 1)) = 0.1
+        [Toggle(_)] _Ap_RimLight_FeatherOff ("Ap_RimLight_FeatherOff", Float ) = 0
+//RimLightMask
+        _Set_RimLightMask ("Set_RimLightMask", 2D) = "white" {}
+        _Tweak_RimLightMaskLevel ("Tweak_RimLightMaskLevel", Range(-1, 1)) = 0
+//
+        [Toggle(_)] _MatCap ("MatCap", Float ) = 0
+        _MatCap_Sampler ("MatCap_Sampler", 2D) = "black" {}
+        //v.2.0.6
+        _BlurLevelMatcap ("Blur Level of MatCap_Sampler", Range(0, 10)) = 0
+        _MatCapColor ("MatCapColor", Color) = (1,1,1,1)
+        [Toggle(_)] _Is_LightColor_MatCap ("Is_LightColor_MatCap", Float ) = 1
+        [Toggle(_)] _Is_BlendAddToMatCap ("Is_BlendAddToMatCap", Float ) = 1
+        _Tweak_MatCapUV ("Tweak_MatCapUV", Range(-0.5, 0.5)) = 0
+        _Rotate_MatCapUV ("Rotate_MatCapUV", Range(-1, 1)) = 0
+        //v.2.0.6
+        [Toggle(_)] _CameraRolling_Stabilizer ("Activate CameraRolling_Stabilizer", Float ) = 0
+        [Toggle(_)] _Is_NormalMapForMatCap ("Is_NormalMapForMatCap", Float ) = 0
+        _NormalMapForMatCap ("NormalMapForMatCap", 2D) = "bump" {}
+        _BumpScaleMatcap ("Scale for NormalMapforMatCap", Range(0, 1)) = 1
+        _Rotate_NormalMapForMatCapUV ("Rotate_NormalMapForMatCapUV", Range(-1, 1)) = 0
+        [Toggle(_)] _Is_UseTweakMatCapOnShadow ("Is_UseTweakMatCapOnShadow", Float ) = 0
+        _TweakMatCapOnShadow ("TweakMatCapOnShadow", Range(0, 1)) = 0
+//MatcapMask
+        _Set_MatcapMask ("Set_MatcapMask", 2D) = "white" {}
+        _Tweak_MatcapMaskLevel ("Tweak_MatcapMaskLevel", Range(-1, 1)) = 0
+        [Toggle(_)] _Inverse_MatcapMask ("Inverse_MatcapMask", Float ) = 0
+        //v.2.0.5
+        [Toggle(_)] _Is_Ortho ("Orthographic Projection for MatCap", Float ) = 0
+        //// Angel Rings
+        [Toggle(_)] _AngelRing("AngelRing", Float) = 0
+        _AngelRing_Sampler("AngelRing_Sampler", 2D) = "black" {}
+        _AngelRing_Color("AngelRing_Color", Color) = (1, 1, 1, 1)
+        [Toggle(_)] _Is_LightColor_AR("Is_LightColor_AR", Float) = 1
+        _AR_OffsetU("AR_OffsetU", Range(0, 0.5)) = 0
+        _AR_OffsetV("AR_OffsetV", Range(0, 1)) = 0.3
+        [Toggle(_)] _ARSampler_AlphaOn("ARSampler_AlphaOn", Float) = 0
+        //
+        //v.2.0.7 Emissive
+        [KeywordEnum(SIMPLE,ANIMATION)] _EMISSIVE("EMISSIVE MODE", Float) = 0
+        _Emissive_Tex ("Emissive_Tex", 2D) = "white" {}
+        [HDR]_Emissive_Color ("Emissive_Color", Color) = (0,0,0,1)
+        _Base_Speed ("Base_Speed", Float ) = 0
+        _Scroll_EmissiveU ("Scroll_EmissiveU", Range(-1, 1)) = 0
+        _Scroll_EmissiveV ("Scroll_EmissiveV", Range(-1, 1)) = 0
+        _Rotate_EmissiveUV ("Rotate_EmissiveUV", Float ) = 0
+        [Toggle(_)] _Is_PingPong_Base ("Is_PingPong_Base", Float ) = 0
+        [Toggle(_)] _Is_ColorShift ("Activate ColorShift", Float ) = 0
+        [HDR]_ColorShift ("ColorSift", Color) = (0,0,0,1)
+        _ColorShift_Speed ("ColorShift_Speed", Float ) = 0
+        [Toggle(_)] _Is_ViewShift ("Activate ViewShift", Float ) = 0
+        [HDR]_ViewShift ("ViewSift", Color) = (0,0,0,1)
+        [Toggle(_)] _Is_ViewCoord_Scroll ("Is_ViewCoord_Scroll", Float ) = 0
+        //
+//Outline
+        [KeywordEnum(NML,POS)] _OUTLINE("OUTLINE MODE", Float) = 0
+        _Outline_Width ("Outline_Width", Float ) = 0
+        _Farthest_Distance ("Farthest_Distance", Float ) = 100
+        _Nearest_Distance ("Nearest_Distance", Float ) = 0.5
+        _Outline_Sampler ("Outline_Sampler", 2D) = "white" {}
+        _Outline_Color ("Outline_Color", Color) = (0.5,0.5,0.5,1)
+        [Toggle(_)] _Is_BlendBaseColor ("Is_BlendBaseColor", Float ) = 0
+        [Toggle(_)] _Is_LightColor_Outline ("Is_LightColor_Outline", Float ) = 1
+        //v.2.0.4
+        [Toggle(_)] _Is_OutlineTex ("Is_OutlineTex", Float ) = 0
+        _OutlineTex ("OutlineTex", 2D) = "white" {}
+        //Offset parameter
+        _Offset_Z ("Offset_Camera_Z", Float) = 0
+        //v.2.0.4.3 Baked Normal Texture for Outline
+        [Toggle(_)] _Is_BakedNormal ("Is_BakedNormal", Float ) = 0
+        _BakedNormal ("Baked Normal for Outline", 2D) = "white" {}
+        //GI Intensity
+        _GI_Intensity ("GI_Intensity", Range(0, 1)) = 0
+        //For VR Chat under No effective light objects
+        _Unlit_Intensity ("Unlit_Intensity", Range(0, 4)) = 0
+        //v.2.0.5 
+        [Toggle(_)] _Is_Filter_LightColor ("VRChat : SceneLights HiCut_Filter", Float ) = 1
+        //Built-in Light Direction
+        [Toggle(_)] _Is_BLD ("Advanced : Activate Built-in Light Direction", Float ) = 0
+        _Offset_X_Axis_BLD (" Offset X-Axis (Built-in Light Direction)", Range(-1, 1)) = -0.05
+        _Offset_Y_Axis_BLD (" Offset Y-Axis (Built-in Light Direction)", Range(-1, 1)) = 0.09
+        [Toggle(_)] _Inverse_Z_Axis_BLD (" Inverse Z-Axis (Built-in Light Direction)", Float ) = 1
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	////////////////// Beginning of HDRP Matte. //////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+        [Toggle(_)] _BaseColorVisible("Channel mask", Float) = 1
+        [Toggle(_)] _BaseColorOverridden("Channel mask", Float) = 0
+        _BaseColorMaskColor("chennel mask color", Color) = (1, 1, 1, 1)
+
+        [Toggle(_)] _FirstShadeVisible("Channel mask", Float) = 1
+        [Toggle(_)] _FirstShadeOverridden("Channel mask", Float) = 0
+        _FirstShadeMaskColor("chennel mask color", Color) = (0, 1, 1, 1)
+
+        [Toggle(_)] _SecondShadeVisible("Channel mask", Float) = 1
+        [Toggle(_)] _SecondShadeOverridden("Channel mask", Float) = 0
+        _SecondShadeMaskColor("chennel mask color", Color) = (0, 0, 1, 1)
+
+        [Toggle(_)] _HighlightVisible("Channel mask", Float) = 1
+        [Toggle(_)] _HighlightOverridden("Channel mask", Float) = 0
+        _HighlightMaskColor("Channel mask color", Color) = (1, 1, 0, 1)
+
+        [Toggle(_)] _AngelRingVisible("Channel mask", Float) = 1
+        [Toggle(_)] _AngelRingOverridden("Channel mask", Float) = 0
+        _AngelRingMaskColor("Channel mask color", Color) = (0, 1, 0, 1)
+
+        [Toggle(_)] _RimLightVisible("Channel mask", Float) = 1
+        [Toggle(_)] _RimLightOverridden("Channel mask", Float) = 0
+        _RimLightMaskColor("Channel mask color", Color) = (1, 0, 1, 1)
+
+        [Toggle(_)] _OutlineVisible("Channel mask", Float) = 1
+        [Toggle(_)] _OutlineOverridden("Channel mask", Float) = 0
+        _OutlineMaskColor("Channel mask color", Color) = (0, 0, 0, 1)
+
+        [Toggle(_)] _ComposerMaskMode("", Float) = 0
+        [Enum(None, 0, BaseColor, 1, FirstShade, 2, SecondShade,3, Highlight, 4, AngelRing, 5, RimLight, 6)] _ClippingMatteMode("Clipping Matte Mode", int) = 0
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	////////////////// End of HDRP Matte.       //////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+
+	////////////////// Avoid HDRP srp batcher error ///////////////////////////////
+        [HideInInspector] emissive("to avoid srp batcher error", Color)= (0, 0, 0, 1) //
+	////////////////// Avoid HDRP srp batcher error ///////////////////////////////
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	////////////////// Beginning of HDRP material default values. ////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	_BaseColorMap("BaseColorMap", 2D) = "white" {}
         [HideInInspector] _BaseColorMap_MipInfo("_BaseColorMap_MipInfo", Vector) = (0, 0, 0, 0)
 
         _Metallic("_Metallic", Range(0.0, 1.0)) = 0
@@ -27,10 +259,12 @@ Shader "HDRP/ToonTessellation"
         _MaskMap("MaskMap", 2D) = "white" {}
         _SmoothnessRemapMin("SmoothnessRemapMin", Float) = 0.0
         _SmoothnessRemapMax("SmoothnessRemapMax", Float) = 1.0
+        _AlphaRemapMin("AlphaRemapMin", Float) = 0.0   // HDRP 14
+        _AlphaRemapMax("AlphaRemapMax", Float) = 1.0   // HDRP 14
         _AORemapMin("AORemapMin", Float) = 0.0
         _AORemapMax("AORemapMax", Float) = 1.0
 
-        _NormalMap("NormalMap", 2D) = "bump" {}     // Tangent space normal map
+        ////////////////  _NormalMap("NormalMap", 2D) = "bump" {}     // Tangent space normal map
         _NormalMapOS("NormalMapOS", 2D) = "white" {} // Object space normal map - no good default value
         _NormalScale("_NormalScale", Range(0.0, 8.0)) = 1
 
@@ -196,7 +430,7 @@ Shader "HDRP/ToonTessellation"
         [Enum(Subsurface Scattering, 0, Standard, 1, Anisotropy, 2, Iridescence, 3, Specular Color, 4, Translucent, 5)] _MaterialID("MaterialId", Int) = 1 // MaterialId.Standard
         [ToggleUI] _TransmissionEnable("_TransmissionEnable", Float) = 1.0
 
-        [Enum(None, 0, Tessellation displacement, 3)] _DisplacementMode("DisplacementMode", Int) = 3
+        [Enum(None, 0, Vertex displacement, 1, Pixel displacement, 2)] _DisplacementMode("DisplacementMode", Int) = 3
         [ToggleUI] _DisplacementLockObjectScale("displacement lock object scale", Float) = 1.0
         [ToggleUI] _DisplacementLockTilingScale("displacement lock tiling scale", Float) = 1.0
         [ToggleUI] _DepthOffsetEnable("Depth Offset View space", Float) = 0.0
@@ -235,254 +469,55 @@ Shader "HDRP/ToonTessellation"
         _TessellationFactorTriangleSize("Tessellation triangle size", Float) = 100.0
         _TessellationShapeFactor("Tessellation shape factor", Range(0.0, 1.0)) = 0.75 // Only use with Phong
         _TessellationBackFaceCullEpsilon("Tessellation back face epsilon", Range(-1.0, 0.0)) = -0.25
-         // TODO: Handle culling mode for backface culling
-
+        // TODO: Handle culling mode for backface culling
         // HACK: GI Baking system relies on some properties existing in the shader ("_MainTex", "_Cutoff" and "_Color") for opacity handling, so we need to store our version of those parameters in the hard-coded name the GI baking system recognizes.
-        _MainTex("BaseMap", 2D) = "white" {}
+        //////////// _MainTex("BaseMap", 2D) = "white" {}
         _Color("Color", Color) = (1,1,1,1)
         _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
 
         [ToggleUI] _SupportDecals("Support Decals", Float) = 1.0
         [ToggleUI] _ReceivesSSR("Receives SSR", Float) = 1.0
         [ToggleUI] _AddPrecomputedVelocity("AddPrecomputedVelocity", Float) = 0.0
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////// End of HDRP material default values. ////////////////////
+	//////////////////////////////////////////////////////////////////////////////
 
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////// Start of HDRP material tessellation values. ///////////// 
+	//////////////////////////////////////////////////////////////////////////////
+        [ToggleUI] _TransmissionEnable("_TransmissionEnable", Float) = 1.0
 
+        [Enum(None, 0, Tessellation displacement, 3)] _DisplacementMode("DisplacementMode", Int) = 3
+        [ToggleUI] _DisplacementLockObjectScale("displacement lock object scale", Float) = 1.0
+        [ToggleUI] _DisplacementLockTilingScale("displacement lock tiling scale", Float) = 1.0
+        [ToggleUI] _DepthOffsetEnable("Depth Offset View space", Float) = 0.0
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////// End of HDRP material tessellation values.   ///////////// 
+	//////////////////////////////////////////////////////////////////////////////
 
-        [HideInInspector] _utsTechnique("Technique", int) = 0 //DWF
-        [HideInInspector] _AutoRenderQueue("Automatic Render Queue ", int) = 1
-        [Enum(OFF, 0, StencilOut, 1, StencilMask, 2)] _StencilMode("StencilMode", int) = 0
-        // these are set in UniversalToonGUI.cs in accordance with _StencilMode
-        _StencilComp("Stencil Comparison", Float) = 8
-        _StencilNo("Stencil No", Float) = 1
-        _StencilOpPass("Stencil Operation", Float) = 0
-        _StencilOpFail("Stencil Operation", Float) = 0
-        [Enum(OFF, 0, ON, 1, ] _TransparentEnabled("Transparent Mode", int) = 0
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////// Start of Legacy material tessellation values. /////////// 
+	//////////////////////////////////////////////////////////////////////////////
 
-        // DoubleShadeWithFeather
-        // 0:_IS_CLIPPING_OFF      1:_IS_CLIPPING_MODE    2:_IS_CLIPPING_TRANSMODE
-        // ShadingGradeMap
-        // 0:_IS_TRANSCLIPPING_OFF 1:_IS_TRANSCLIPPING_ON
-        [Enum(OFF, 0, ON, 1, TRANSMODE, 2)] _ClippingMode("CliippingMode", int) = 0
+        //Tessellation
+        _TessEdgeLength("DX11 Tess : Edge length", Range(2, 50)) = 5
+        _TessPhongStrength("DX11 Tess : Phong Strength", Range(0, 1)) = 0.5
+        _TessExtrusionAmount("DX11 Tess : Extrusion Amount", Range(-0.005, 0.005)) = 0.0
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////// End of Legacy material tessellation values.   /////////// 
+	//////////////////////////////////////////////////////////////////////////////
 
-        [Enum(OFF, 0, FRONT, 1, BACK, 2)] _CullMode("Cull Mode", int) = 2  //OFF/FRONT/BACK
-        [Enum(OFF, 0, ONT, 1)]	_ZWriteMode("ZWrite Mode", int) = 1  //OFF/ON
-        [Enum(OFF, 0, ONT, 1)]	_ZOverDrawMode("ZOver Draw Mode", Float) = 0  //OFF/ON
-        _SPRDefaultUnlitColorMask("SPRDefaultUnlit Path Color Mask", int) = 15
-        [Enum(OFF, 0, FRONT, 1, BACK, 2)] _SRPDefaultUnlitColMode("SPRDefaultUnlit  Cull Mode", int) = 1  //OFF/FRONT/BACK
-        // ClippingMask paramaters from Here.
-        _ClippingMask("ClippingMask", 2D) = "white" {}
-        //v.2.0.4
-        [HideInInspector] _IsBaseMapAlphaAsClippingMask("IsBaseMapAlphaAsClippingMask", Float) = 0
-            //
-        [Toggle(_)] _Inverse_Clipping("Inverse_Clipping", Float) = 0
-        _Clipping_Level("Clipping_Level", Range(0, 1)) = 0
-        _Tweak_transparency("Tweak_transparency", Range(-1, 1)) = 0
-        // ClippingMask paramaters to Here.
-
-    //            _MainTex("BaseMap", 2D) = "white" {}
-        [HideInInspector] _BaseMap("BaseMap", 2D) = "white" {}
-        _BaseColor("BaseColor", Color) = (1, 1, 1, 1)
-        //v.2.0.5 : Clipping/TransClipping for SSAO Problems in PostProcessing Stack.
-        //If you want to go back the former SSAO results, comment out the below line.
-        [HideInInspector] _Color("Color", Color) = (1, 1, 1, 1)
-        //
-        [Toggle(_)] _Is_LightColor_Base("Is_LightColor_Base", Float) = 1
-        _1st_ShadeMap("1st_ShadeMap", 2D) = "white" {}
-        //v.2.0.5
-        [Toggle(_)] _Use_BaseAs1st("Use BaseMap as 1st_ShadeMap", Float) = 0
-        _1st_ShadeColor("1st_ShadeColor", Color) = (1, 1, 1, 1)
-        [Toggle(_)] _Is_LightColor_1st_Shade("Is_LightColor_1st_Shade", Float) = 1
-        _2nd_ShadeMap("2nd_ShadeMap", 2D) = "white" {}
-        //v.2.0.5
-        [Toggle(_)] _Use_1stAs2nd("Use 1st_ShadeMap as 2nd_ShadeMap", Float) = 0
-        _2nd_ShadeColor("2nd_ShadeColor", Color) = (1, 1, 1, 1)
-        [Toggle(_)] _Is_LightColor_2nd_Shade("Is_LightColor_2nd_Shade", Float) = 1
-        //            _NormalMap("NormalMap", 2D) = "bump" {}
-        _BumpScale("Normal Scale", Range(0, 1)) = 1
-        [Toggle(_)] _Is_NormalMapToBase("Is_NormalMapToBase", Float) = 0
-        //v.2.0.4.4
-        [Toggle(_)] _Set_SystemShadowsToBase("Set_SystemShadowsToBase", Float) = 1
-        _Tweak_SystemShadowsLevel("Tweak_SystemShadowsLevel", Range(-0.5, 0.5)) = 0
-        //v.2.0.6
-        _BaseColor_Step("BaseColor_Step", Range(0, 1)) = 0.5
-        _BaseShade_Feather("Base/Shade_Feather", Range(0.0001, 1)) = 0.0001
-        _ShadeColor_Step("ShadeColor_Step", Range(0, 1)) = 0
-        _1st2nd_Shades_Feather("1st/2nd_Shades_Feather", Range(0.0001, 1)) = 0.0001
-        [HideInInspector] _1st_ShadeColor_Step("1st_ShadeColor_Step", Range(0, 1)) = 0.5
-        [HideInInspector] _1st_ShadeColor_Feather("1st_ShadeColor_Feather", Range(0.0001, 1)) = 0.0001
-        [HideInInspector] _2nd_ShadeColor_Step("2nd_ShadeColor_Step", Range(0, 1)) = 0
-        [HideInInspector] _2nd_ShadeColor_Feather("2nd_ShadeColor_Feather", Range(0.0001, 1)) = 0.0001
-        //v.2.0.5
-        _StepOffset("Step_Offset (ForwardAdd Only)", Range(-0.5, 0.5)) = 0
-        [Toggle(_)] _Is_Filter_HiCutPointLightColor("PointLights HiCut_Filter (ForwardAdd Only)", Float) = 1
-        //
-        _Set_1st_ShadePosition("Set_1st_ShadePosition", 2D) = "white" {}
-        _Set_2nd_ShadePosition("Set_2nd_ShadePosition", 2D) = "white" {}
-        _ShadingGradeMap("ShadingGradeMap", 2D) = "white" {}
-        //v.2.0.6
-        _Tweak_ShadingGradeMapLevel("Tweak_ShadingGradeMapLevel", Range(-0.5, 0.5)) = 0
-        _BlurLevelSGM("Blur Level of ShadingGradeMap", Range(0, 10)) = 0
-
-        //
-        _HighColor("HighColor", Color) = (0, 0, 0, 1)
-        //v.2.0.4 HighColor_Tex
-        _HighColor_Tex("HighColor_Tex", 2D) = "white" {}
-        [Toggle(_)] _Is_LightColor_HighColor("Is_LightColor_HighColor", Float) = 1
-        [Toggle(_)] _Is_NormalMapToHighColor("Is_NormalMapToHighColor", Float) = 0
-        _HighColor_Power("HighColor_Power", Range(0, 1)) = 0
-        [Toggle(_)] _Is_SpecularToHighColor("Is_SpecularToHighColor", Float) = 0
-        [Toggle(_)] _Is_BlendAddToHiColor("Is_BlendAddToHiColor", Float) = 0
-        [Toggle(_)] _Is_UseTweakHighColorOnShadow("Is_UseTweakHighColorOnShadow", Float) = 0
-        _TweakHighColorOnShadow("TweakHighColorOnShadow", Range(0, 1)) = 0
-        //HiColorMask
-        _Set_HighColorMask("Set_HighColorMask", 2D) = "white" {}
-        _Tweak_HighColorMaskLevel("Tweak_HighColorMaskLevel", Range(-1, 1)) = 0
-        [Toggle(_)] _RimLight("RimLight", Float) = 0
-        _RimLightColor("RimLightColor", Color) = (1, 1, 1, 1)
-        [Toggle(_)] _Is_LightColor_RimLight("Is_LightColor_RimLight", Float) = 1
-        [Toggle(_)] _Is_NormalMapToRimLight("Is_NormalMapToRimLight", Float) = 0
-        _RimLight_Power("RimLight_Power", Range(0, 1)) = 0.1
-        _RimLight_InsideMask("RimLight_InsideMask", Range(0.0001, 1)) = 0.0001
-        [Toggle(_)] _RimLight_FeatherOff("RimLight_FeatherOff", Float) = 0
-        //RimLight
-        [Toggle(_)] _LightDirection_MaskOn("LightDirection_MaskOn", Float) = 0
-        _Tweak_LightDirection_MaskLevel("Tweak_LightDirection_MaskLevel", Range(0, 0.5)) = 0
-        [Toggle(_)] _Add_Antipodean_RimLight("Add_Antipodean_RimLight", Float) = 0
-        _Ap_RimLightColor("Ap_RimLightColor", Color) = (1, 1, 1, 1)
-        [Toggle(_)] _Is_LightColor_Ap_RimLight("Is_LightColor_Ap_RimLight", Float) = 1
-        _Ap_RimLight_Power("Ap_RimLight_Power", Range(0, 1)) = 0.1
-        [Toggle(_)] _Ap_RimLight_FeatherOff("Ap_RimLight_FeatherOff", Float) = 0
-        //RimLightMask
-        _Set_RimLightMask("Set_RimLightMask", 2D) = "white" {}
-        _Tweak_RimLightMaskLevel("Tweak_RimLightMaskLevel", Range(-1, 1)) = 0
-        //
-        [Toggle(_)] _MatCap("MatCap", Float) = 0
-        _MatCap_Sampler("MatCap_Sampler", 2D) = "black" {}
-        //v.2.0.6
-        _BlurLevelMatcap("Blur Level of MatCap_Sampler", Range(0, 10)) = 0
-        _MatCapColor("MatCapColor", Color) = (1, 1, 1, 1)
-        [Toggle(_)] _Is_LightColor_MatCap("Is_LightColor_MatCap", Float) = 1
-        [Toggle(_)] _Is_BlendAddToMatCap("Is_BlendAddToMatCap", Float) = 1
-        _Tweak_MatCapUV("Tweak_MatCapUV", Range(-0.5, 0.5)) = 0
-        _Rotate_MatCapUV("Rotate_MatCapUV", Range(-1, 1)) = 0
-        //v.2.0.6
-        [Toggle(_)] _CameraRolling_Stabilizer("Activate CameraRolling_Stabilizer", Float) = 0
-        [Toggle(_)] _Is_NormalMapForMatCap("Is_NormalMapForMatCap", Float) = 0
-        _NormalMapForMatCap("NormalMapForMatCap", 2D) = "bump" {}
-        _BumpScaleMatcap("Scale for NormalMapforMatCap", Range(0, 1)) = 1
-        _Rotate_NormalMapForMatCapUV("Rotate_NormalMapForMatCapUV", Range(-1, 1)) = 0
-        [Toggle(_)] _Is_UseTweakMatCapOnShadow("Is_UseTweakMatCapOnShadow", Float) = 0
-        _TweakMatCapOnShadow("TweakMatCapOnShadow", Range(0, 1)) = 0
-        //MatcapMask
-        _Set_MatcapMask("Set_MatcapMask", 2D) = "white" {}
-        _Tweak_MatcapMaskLevel("Tweak_MatcapMaskLevel", Range(-1, 1)) = 0
-        [Toggle(_)] _Inverse_MatcapMask("Inverse_MatcapMask", Float) = 0
-        //v.2.0.5
-        [Toggle(_)] _Is_Ortho("Orthographic Projection for MatCap", Float) = 0
-        //// Angel Rings
-        [Toggle(_)] _AngelRing("AngelRing", Float) = 0
-        _AngelRing_Sampler("AngelRing_Sampler", 2D) = "black" {}
-        _AngelRing_Color("AngelRing_Color", Color) = (1, 1, 1, 1)
-        [Toggle(_)] _Is_LightColor_AR("Is_LightColor_AR", Float) = 1
-        _AR_OffsetU("AR_OffsetU", Range(0, 0.5)) = 0
-        _AR_OffsetV("AR_OffsetV", Range(0, 1)) = 0.3
-        [Toggle(_)] _ARSampler_AlphaOn("ARSampler_AlphaOn", Float) = 0
-        //
-        //v.2.0.7 Emissive
-        [KeywordEnum(SIMPLE, ANIMATION)] _EMISSIVE("EMISSIVE MODE", Float) = 0
-        _Emissive_Tex("Emissive_Tex", 2D) = "white" {}
-        [HDR]_Emissive_Color("Emissive_Color", Color) = (0, 0, 0, 1)
-        _Base_Speed("Base_Speed", Float) = 0
-        _Scroll_EmissiveU("Scroll_EmissiveU", Range(-1, 1)) = 0
-        _Scroll_EmissiveV("Scroll_EmissiveV", Range(-1, 1)) = 0
-        _Rotate_EmissiveUV("Rotate_EmissiveUV", Float) = 0
-        [Toggle(_)] _Is_PingPong_Base("Is_PingPong_Base", Float) = 0
-        [Toggle(_)] _Is_ColorShift("Activate ColorShift", Float) = 0
-        [HDR]_ColorShift("ColorSift", Color) = (0, 0, 0, 1)
-        _ColorShift_Speed("ColorShift_Speed", Float) = 0
-        [Toggle(_)] _Is_ViewShift("Activate ViewShift", Float) = 0
-        [HDR]_ViewShift("ViewSift", Color) = (0, 0, 0, 1)
-        [Toggle(_)] _Is_ViewCoord_Scroll("Is_ViewCoord_Scroll", Float) = 0
-        //
-        //Outline
-        [KeywordEnum(NML, POS)] _OUTLINE("OUTLINE MODE", Float) = 0
-        _Outline_Width("Outline_Width", Float) = 0
-        _Farthest_Distance("Farthest_Distance", Float) = 100
-        _Nearest_Distance("Nearest_Distance", Float) = 0.5
-        _Outline_Sampler("Outline_Sampler", 2D) = "white" {}
-        _Outline_Color("Outline_Color", Color) = (0.5, 0.5, 0.5, 1)
-        [Toggle(_)] _Is_BlendBaseColor("Is_BlendBaseColor", Float) = 0
-        [Toggle(_)] _Is_LightColor_Outline("Is_LightColor_Outline", Float) = 1
-        // ClippingMask paramaters from Here.
-        [HideInInspector]_Cutoff("Alpha cutoff", Range(0, 1)) = 0.5
-        // ClippingMask paramaters to here.
-        //v.2.0.4
-        [Toggle(_)] _Is_OutlineTex("Is_OutlineTex", Float) = 0
-        _OutlineTex("OutlineTex", 2D) = "white" {}
-        //Offset parameter
-        _Offset_Z("Offset_Camera_Z", Float) = 0
-        //v.2.0.4.3 Baked Nrmal Texture for Outline
-        [Toggle(_)] _Is_BakedNormal("Is_BakedNormal", Float) = 0
-        _BakedNormal("Baked Normal for Outline", 2D) = "white" {}
-        //GI Intensity
-        _GI_Intensity("GI_Intensity", Range(0, 1)) = 0
-        //For VR Chat under No effective light objects
-        _Unlit_Intensity("Unlit_Intensity", Range(0, 4)) = 0
-        //v.2.0.5 
-        [Toggle(_)] _Is_Filter_LightColor("VRChat : SceneLights HiCut_Filter", Float) = 1
-        //Built-in Light Direction
-        [Toggle(_)] _Is_BLD("Advanced : Activate Built-in Light Direction", Float) = 0
-        _Offset_X_Axis_BLD(" Offset X-Axis (Built-in Light Direction)", Range(-1, 1)) = -0.05
-        _Offset_Y_Axis_BLD(" Offset Y-Axis (Built-in Light Direction)", Range(-1, 1)) = 0.09
-        [Toggle(_)] _Inverse_Z_Axis_BLD(" Inverse Z-Axis (Built-in Light Direction)", Float) = 1
-
-        [Toggle(_)] _BaseColorVisible("Channel mask", Float) = 1
-        [Toggle(_)] _BaseColorOverridden("Channel mask", Float) = 0
-        _BaseColorMaskColor("chennel mask color", Color) = (1, 1, 1, 0.8)
-
-        [Toggle(_)] _FirstShadeVisible("Channel mask", Float) = 1
-        [Toggle(_)] _FirstShadeOverridden("Channel mask", Float) = 0
-        _FirstShadeMaskColor("chennel mask color", Color) = (0, 1, 1, 0.7)
-
-        [Toggle(_)] _SecondShadeVisible("Channel mask", Float) = 1
-        [Toggle(_)] _SecondShadeOverridden("Channel mask", Float) = 0
-        _SecondShadeMaskColor("chennel mask color", Color) = (0, 0, 1, 0.6)
-
-        [Toggle(_)] _HighlightVisible("Channel mask", Float) = 1
-        [Toggle(_)] _HighlightOverridden("Channel mask", Float) = 0
-        _HighlightMaskColor("Channel mask color", Color) = (1, 1, 0, 0.95)
-
-        [Toggle(_)] _AngelRingVisible("Channel mask", Float) = 1
-        [Toggle(_)] _AngelRingOverridden("Channel mask", Float) = 0
-        _AngelRingMaskColor("Channel mask color", Color) = (0, 1, 0, 0.95)
-
-        [Toggle(_)] _RimLightVisible("Channel mask", Float) = 1
-        [Toggle(_)] _RimLightOverridden("Channel mask", Float) = 0
-        _RimLightMaskColor("Channel mask color", Color) = (1, 0, 1, 0.9)
-
-        [Toggle(_)] _OutlineVisible("Channel mask", Float) = 1
-        [Toggle(_)] _OutlineOverridden("Channel mask", Float) = 0
-        _OutlineMaskColor("Channel mask color", Color) = (0, 0, 0, 0.5)
-
-        [Toggle(_)] _ComposerMaskMode("", Float) = 0
-        [Enum(None, 0, BaseColor, 1, FirstShade, 2, SecondShade, 3, Highlight, 4, AngelRing, 5, RimLight, 6)] _ClippingMaskMode("Clipping Mask Mode", int) = 0
-
-        [HideInInspector] emissive("to avoid srp batcher error", Color) = (0, 0, 0, 1)
-
-
-        // to here parameters for UTS>
-    }
+    } 
 
     HLSLINCLUDE
-
     #pragma target 5.0
     #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
-
-
+    #define DISABLE_RP_SHADERS
     //-------------------------------------------------------------------------------------
     // Variant
     //-------------------------------------------------------------------------------------
-
+#ifndef DISABLE_RP_SHADERS
+    // HDRP Variant
     #pragma shader_feature_local _ALPHATEST_ON
     #pragma shader_feature_local _DEPTHOFFSET_ON
     #pragma shader_feature_local _DOUBLESIDED_ON
@@ -491,17 +526,14 @@ Shader "HDRP/ToonTessellation"
     #pragma shader_feature_local _DISPLACEMENT_LOCK_TILING_SCALE
     #pragma shader_feature_local _PIXEL_DISPLACEMENT_LOCK_OBJECT_SCALE
     #pragma shader_feature_local _TESSELLATION_PHONG
-#if 0
     #pragma shader_feature_local _ _REFRACTION_PLANE _REFRACTION_SPHERE _REFRACTION_THIN
 
     #pragma shader_feature_local _ _EMISSIVE_MAPPING_PLANAR _EMISSIVE_MAPPING_TRIPLANAR
     #pragma shader_feature_local _ _MAPPING_PLANAR _MAPPING_TRIPLANAR
-#endif
     #pragma shader_feature_local _NORMALMAP_TANGENT_SPACE
     #pragma shader_feature_local _ _REQUIRE_UV2 _REQUIRE_UV3
 
     #pragma shader_feature_local _NORMALMAP
-#if 0
     #pragma shader_feature_local _MASKMAP
     #pragma shader_feature_local _BENTNORMALMAP
     #pragma shader_feature_local _EMISSIVE_COLOR_MAP
@@ -524,10 +556,9 @@ Shader "HDRP/ToonTessellation"
     #pragma shader_feature_local _IRIDESCENCE_THICKNESSMAP
     #pragma shader_feature_local _SPECULARCOLORMAP
     #pragma shader_feature_local _TRANSMITTANCECOLORMAP
-#endif
+
     #pragma shader_feature_local _DISABLE_DECALS
     #pragma shader_feature_local _DISABLE_SSR
-#if 0    
     #pragma shader_feature_local _ADD_PRECOMPUTED_VELOCITY
     #pragma shader_feature_local _ENABLE_GEOMETRIC_SPECULAR_AA
 
@@ -545,7 +576,7 @@ Shader "HDRP/ToonTessellation"
     #pragma shader_feature_local _MATERIAL_FEATURE_CLEAR_COAT
     #pragma shader_feature_local _MATERIAL_FEATURE_IRIDESCENCE
     #pragma shader_feature_local _MATERIAL_FEATURE_SPECULAR_COLOR
-#endif
+
 
     // enable dithering LOD crossfade
     #pragma multi_compile _ LOD_FADE_CROSSFADE
@@ -554,13 +585,16 @@ Shader "HDRP/ToonTessellation"
     #pragma multi_compile_instancing
     #pragma instancing_options renderinglayer
     // enable debug shado
-//    #pragma multi_compile _ UTS_DEBUG_SELFSHADOW
-//    #pragma multi_compile _ UTS_DEBUG_SHADOWMAP
-//    #pragma multi_compile _ UTS_DEBUG_SHADOWMAP_NO_OUTLINE
+    //    #pragma multi_compile _ UTS_DEBUG_SELFSHADOW
+    //    #pragma multi_compile _ UTS_DEBUG_SHADOWMAP
+    //    #pragma multi_compile _ UTS_DEBUG_SHADOWMAP_NO_OUTLINE
+    // end of HDRP Variants
+#endif //#ifndef DISABLE_RP_SHADERS
+
+
     //-------------------------------------------------------------------------------------
     // Define
     //-------------------------------------------------------------------------------------
-
     #define TESSELLATION_ON
     // This shader support vertex modification
     #define HAVE_VERTEX_MODIFICATION
@@ -574,36 +608,20 @@ Shader "HDRP/ToonTessellation"
     #if defined(_TRANSPARENT_WRITES_MOTION_VEC) && defined(_SURFACE_TYPE_TRANSPARENT)
     #define _WRITE_TRANSPARENT_MOTION_VECTOR
     #endif
-    //-------------------------------------------------------------------------------------
-    // Include
-    //-------------------------------------------------------------------------------------
-
-    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
-    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/GeometricTools.hlsl"
-    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Tessellation.hlsl"
-    #include "Packages/com.unity.render-pipelines.high-definition/Runtime/ShaderLibrary/ShaderVariables.hlsl"
-    #include "Packages/com.unity.render-pipelines.high-definition/Runtime/RenderPipeline/ShaderPass/FragInputs.hlsl"
-    #include "Packages/com.unity.render-pipelines.high-definition/Runtime/RenderPipeline/ShaderPass/ShaderPass.cs.hlsl"
-    #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Material.hlsl"
-
-    //-------------------------------------------------------------------------------------
-    // variable declaration
-    //-------------------------------------------------------------------------------------
-    #include "UtsHdrpProperties.hlsl"
-
-    // TODO:
-    // Currently, Lit.hlsl and LitData.hlsl are included for every pass. Split Lit.hlsl in two:
-    // LitData.hlsl and LitShading.hlsl (merge into the existing LitData.hlsl).
-    // LitData.hlsl should be responsible for preparing shading parameters.
-    // LitShading.hlsl implements the light loop API.
-    // LitData.hlsl is included here, LitShading.hlsl is included below for shading passes only.
 
     ENDHLSL
 
+    // *************************** //
+    // ****** HDRP Subshader ***** //
+    // *************************** //
     SubShader
     {
+        PackageRequirements
+        {
+           "com.unity.render-pipelines.high-definition": "10.5.0"
+        }    
         // This tags allow to use the shader replacement features
-        Tags{ "RenderPipeline"="HDRenderPipeline"  }
+        Tags{ "RenderPipeline"="HDRenderPipeline" }
 
         Pass
         {
@@ -613,12 +631,13 @@ Shader "HDRP/ToonTessellation"
             Cull Off
 
             HLSLPROGRAM
-
+            #include "./UtsHDRP.hlsl"
             // Note: Require _ObjectId and _PassValue variables
 
             // We reuse depth prepass for the scene selection, allow to handle alpha correctly as well as tessellation and vertex animation
             #define SHADERPASS SHADERPASS_DEPTH_ONLY
             #define SCENESELECTIONPASS // This will drive the output of the scene selection shader
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Material.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/Lit.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/ShaderPass/LitDepthPass.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitData.hlsl"
@@ -635,7 +654,6 @@ Shader "HDRP/ToonTessellation"
         }
 
         // Caution: The outline selection in the editor use the vertex shader/hull/domain shader of the first pass declare. So it should not bethe  meta pass.
-
         Pass
         {
             Name "GBuffer"
@@ -653,9 +671,9 @@ Shader "HDRP/ToonTessellation"
             }
 
             HLSLPROGRAM
+            #include "./UtsHDRP.hlsl"
 
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
-            #pragma instancing_options renderinglayer
             #pragma multi_compile _ DOTS_INSTANCING_ON
 
 
@@ -679,19 +697,19 @@ Shader "HDRP/ToonTessellation"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Debug/DebugDisplay.hlsl"
             #endif
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Material.hlsl"
-//            #include "MaterialGBufferMacrosUTS.hlsl" // must be above lit.hlsl
+            //            #include "MaterialGBufferMacrosUTS.hlsl" // must be above lit.hlsl
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/Lit.hlsl"
-//            #include "EncodeIntoGBufferUTS.hlsl" // must be bellow lit.hlsl
+            //            #include "EncodeIntoGBufferUTS.hlsl" // must be bellow lit.hlsl
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/ShaderPass/LitSharePass.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitData.hlsl"
 
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/RenderPipeline/ShaderPass/ShaderPassGBuffer.hlsl"
-
             #pragma vertex Vert
             #pragma fragment Frag
 
             ENDHLSL
         }
+
 
         // Extracts information for lightmapping, GI (emission, albedo, ...)
         // This pass it not used during regular rendering.
@@ -703,15 +721,13 @@ Shader "HDRP/ToonTessellation"
             Cull Off
 
             HLSLPROGRAM
-
+            #include "./UtsHDRP.hlsl"
             // Lightmap memo
             // DYNAMICLIGHTMAP_ON is used when we have an "enlighten lightmap" ie a lightmap updated at runtime by enlighten.This lightmap contain indirect lighting from realtime lights and realtime emissive material.Offline baked lighting(from baked material / light,
             // both direct and indirect lighting) will hand up in the "regular" lightmap->LIGHTMAP_ON.
 
-            // No tessellation for Meta pass
-            #undef TESSELLATION_ON
-
             #define SHADERPASS SHADERPASS_LIGHT_TRANSPORT
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Material.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/Lit.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/ShaderPass/LitSharePass.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitData.hlsl"
@@ -737,8 +753,10 @@ Shader "HDRP/ToonTessellation"
             ColorMask 0
 
             HLSLPROGRAM
+            #include "./UtsHDRP.hlsl"
 
             #define SHADERPASS SHADERPASS_SHADOWS
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Material.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/Lit.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/ShaderPass/LitDepthPass.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitData.hlsl"
@@ -771,12 +789,14 @@ Shader "HDRP/ToonTessellation"
             ZWrite On
 
             HLSLPROGRAM
-
+            #include "./UtsHDRP.hlsl"
             // In deferred, depth only pass don't output anything.
             // In forward it output the normal buffer
             #pragma multi_compile _ WRITE_NORMAL_BUFFER
             #pragma multi_compile _ WRITE_MSAA_DEPTH
+
             #define SHADERPASS SHADERPASS_DEPTH_ONLY
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Material.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/Lit.hlsl"
 
             #ifdef WRITE_NORMAL_BUFFER // If enabled we need all regular interpolator
@@ -815,10 +835,12 @@ Shader "HDRP/ToonTessellation"
             ZWrite On
 
             HLSLPROGRAM
+            #include "./UtsHDRP.hlsl"
             #pragma multi_compile _ WRITE_NORMAL_BUFFER
             #pragma multi_compile _ WRITE_MSAA_DEPTH
 
             #define SHADERPASS SHADERPASS_MOTION_VECTORS
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Material.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/Lit.hlsl"
             #ifdef WRITE_NORMAL_BUFFER // If enabled we need all regular interpolator
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/ShaderPass/LitSharePass.hlsl"
@@ -857,8 +879,9 @@ Shader "HDRP/ToonTessellation"
             Cull [_CullMode]
 
             HLSLPROGRAM
-
+            #include "./UtsHDRP.hlsl"
             #define SHADERPASS SHADERPASS_DISTORTION
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Material.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/Lit.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/ShaderPass/LitDistortionPass.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitData.hlsl"
@@ -882,9 +905,10 @@ Shader "HDRP/ToonTessellation"
             ColorMask 0
 
             HLSLPROGRAM
-
+            #include "./UtsHDRP.hlsl"
             #define SHADERPASS SHADERPASS_DEPTH_ONLY
             #define CUTOFF_TRANSPARENT_DEPTH_PREPASS
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Material.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/Lit.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/ShaderPass/LitDepthPass.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitData.hlsl"
@@ -911,7 +935,7 @@ Shader "HDRP/ToonTessellation"
             ZTest [_ZTestTransparent]
 
             HLSLPROGRAM
-
+            #include "./UtsHDRP.hlsl"
             #pragma multi_compile _ DEBUG_DISPLAY
             #pragma multi_compile _ LIGHTMAP_ON
             #pragma multi_compile _ DIRLIGHTMAP_COMBINED
@@ -927,6 +951,7 @@ Shader "HDRP/ToonTessellation"
             #define USE_CLUSTERED_LIGHTLIST // There is not FPTL lighting when using transparent
             #define AREA_SHADOW_LOW
             #define SHADERPASS SHADERPASS_FORWARD
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Material.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Lighting/Lighting.hlsl"
 
         #ifdef DEBUG_DISPLAY
@@ -960,9 +985,10 @@ Shader "HDRP/ToonTessellation"
 
         Pass
         {
+
             Name "ForwardOnly"
             Tags { "LightMode" = "ForwardOnly" } 
-            ZTest[_ZTestDepthEqualForOpaque]
+
             ZWrite[_ZWriteMode]
             Cull[_CullMode]
             Blend SrcAlpha OneMinusSrcAlpha
@@ -976,8 +1002,10 @@ Shader "HDRP/ToonTessellation"
 
             }
 
-            HLSLPROGRAM
 
+
+            HLSLPROGRAM
+            #include "./UtsHDRP.hlsl"
 //            #pragma multi_compile _ UTS_DEBUG_SHADOWMAP_BINALIZATION
             #pragma multi_compile _ DEBUG_DISPLAY
             #pragma multi_compile _ LIGHTMAP_ON
@@ -990,7 +1018,7 @@ Shader "HDRP/ToonTessellation"
             // Supported shadow modes per light type
             #pragma multi_compile SHADOW_LOW SHADOW_MEDIUM SHADOW_HIGH
             #define LIGHTLOOP_DISABLE_TILE_AND_CLUSTER
-//            #pragma multi_compile USE_FPTL_LIGHTLIST USE_CLUSTERED_LIGHTLIST
+//	    #pragma multi_compile USE_FPTL_LIGHTLIST USE_CLUSTERED_LIGHTLIST
             #define AREA_SHADOW_LOW
             #define SHADERPASS SHADERPASS_FORWARD
             // In case of opaque we don't want to perform the alpha test, it is done in depth prepass and we use depth equal for ztest (setup from UI)
@@ -998,122 +1026,18 @@ Shader "HDRP/ToonTessellation"
             #if !defined(_SURFACE_TYPE_TRANSPARENT) && !defined(DEBUG_DISPLAY)
                 #define SHADERPASS_FORWARD_BYPASS_ALPHA_TEST
             #endif
-            #pragma shader_feature _ _SHADINGGRADEMAP
+            #pragma shader_feature_local _ _SHADINGGRADEMAP
             // used in ShadingGradeMap
             #pragma shader_feature _IS_TRANSCLIPPING_OFF _IS_TRANSCLIPPING_ON
             #pragma shader_feature _IS_ANGELRING_OFF _IS_ANGELRING_ON
             // used in Shadow calculation 
-            #pragma shader_feature _ UTS_USE_RAYTRACING_SHADOW
+            #pragma shader_feature_local _ UTS_USE_RAYTRACING_SHADOW
             // used in DoubleShadeWithFeather
             #pragma shader_feature _IS_CLIPPING_OFF _IS_CLIPPING_MODE _IS_CLIPPING_TRANSMODE
             // controlling mask rendering
             #pragma shader_feature _ _IS_CLIPPING_MATTE
             #pragma shader_feature _EMISSIVE_SIMPLE _EMISSIVE_ANIMATION
 
-            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Material.hlsl"
-            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Lighting/Lighting.hlsl"
-
-
-        #ifdef DEBUG_DISPLAY
-        # if (SHADER_LIBRARY_VERSION_MAJOR >= 10)
-            #include "DebugDisplay.hlsl"
-        # else
-            #include "DebugDisplayHDRP7.hlsl"
-        # endif
-        #endif
-
-            // The light loop (or lighting architecture) is in charge to:
-            // - Define light list
-            // - Define the light loop
-            // - Setup the constant/data
-            // - Do the reflection hierarchy
-            // - Provide sampling function for shadowmap, ies, cookie and reflection (depends on the specific use with the light loops like index array or atlas or single and texture format (cubemap/latlong))
-
-            #define HAS_LIGHTLOOP
-
-            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Lighting/LightLoop/LightLoopDef.hlsl"
-            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/Lit.hlsl"
-
-            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Lighting/LightLoop/LightLoop.hlsl"
-            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/ShaderPass/LitSharePass.hlsl"
-            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitData.hlsl"
-        #ifdef DEBUG_DISPLAY
-        # if (SHADER_LIBRARY_VERSION_MAJOR >= 10)
-            #include "ShaderPassForward.hlsl"
-        # else
-            #include "ShaderPassForwardHDRP7.hlsl"
-        # endif
-        #else
-            #include "UtsLightLoop.hlsl"
-            #include "ShaderPassForwardUTS.hlsl"
-        #endif
-
-            #pragma vertex Vert
-            #pragma fragment Frag
-            #pragma hull Hull
-            #pragma domain Domain
-
-            ENDHLSL
-        }
-
-        Pass
-        {
-            Name "TransparentDepthPostpass"
-            Tags { "LightMode" = "TransparentDepthPostpass" }
-
-            Cull[_CullMode]
-            ZWrite On
-            ColorMask 0
-
-            HLSLPROGRAM
-
-            #define SHADERPASS SHADERPASS_DEPTH_ONLY
-            #define CUTOFF_TRANSPARENT_DEPTH_POSTPASS
-            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/Lit.hlsl"
-            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/ShaderPass/LitDepthPass.hlsl"
-            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitData.hlsl"
-            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/RenderPipeline/ShaderPass/ShaderPassDepthOnly.hlsl"
-
-            #pragma vertex Vert
-            #pragma fragment Frag
-            #pragma hull Hull
-            #pragma domain Domain
-
-            ENDHLSL
-        }
-
-        Tags{
-            "RenderType" = "Opaque"
-        }
-        Pass{
-            Name "Outline"
-            Tags {
-                "LightMode" = "SRPDefaultUnlit"
-            }
-            Cull[_SRPDefaultUnlitColMode]
-            ColorMask[_SPRDefaultUnlitColorMask]
-            Blend SrcAlpha OneMinusSrcAlpha
-            Stencil
-            {
-                Ref[_StencilNo]
-                Comp[_StencilComp]
-                Pass[_StencilOpPass]
-                Fail[_StencilOpFail]
-
-            }
-
-            HLSLPROGRAM
-
-            #define TESSELLATION_ON
-            #pragma multi_compile USE_FPTL_LIGHTLIST USE_CLUSTERED_LIGHTLIST
-            #define AREA_SHADOW_LOW
-            #define SHADERPASS SHADERPASS_FORWARD
-            #define SHADOW_LOW
-            #define LIGHTLOOP_DISABLE_TILE_AND_CLUSTER
-
-            #pragma multi_compile _IS_OUTLINE_CLIPPING_NO _IS_OUTLINE_CLIPPING_YES
-            #pragma multi_compile _OUTLINE_NML _OUTLINE_POS
-            #pragma shader_feature _ _IS_CLIPPING_MATTE
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Material.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Lighting/Lighting.hlsl"
 
@@ -1137,19 +1061,542 @@ Shader "HDRP/ToonTessellation"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Lighting/LightLoop/LightLoop.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/ShaderPass/LitSharePass.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitData.hlsl"
+#ifdef UNITY_SHADER_VARIABLES_INCLUDED
+            #include "../../HDRP/Shaders/UtsLightLoop.hlsl"
+            #include "../../HDRP/Shaders/ShaderPassForwardUTS.hlsl"
+#endif
+            #pragma vertex Vert
+            #pragma fragment Frag
+            #pragma hull Hull
+            #pragma domain Domain
 
+            ENDHLSL
+        }
 
+        Pass
+        {
+            Name "TransparentDepthPostpass"
+            Tags { "LightMode" = "TransparentDepthPostpass" }
 
-            #include "HDRPToonHead.hlsl"
-            #include "HDRPToonOutline.hlsl"
+            Cull[_CullMode]
+            ZWrite On
+            ColorMask 0
+
+            HLSLPROGRAM
+            #include "./UtsHDRP.hlsl"
+            #define SHADERPASS SHADERPASS_DEPTH_ONLY
+            #define CUTOFF_TRANSPARENT_DEPTH_POSTPASS
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Material.hlsl"
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/Lit.hlsl"
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/ShaderPass/LitDepthPass.hlsl"
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitData.hlsl"
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/RenderPipeline/ShaderPass/ShaderPassDepthOnly.hlsl"
 
             #pragma vertex Vert
             #pragma fragment Frag
             #pragma hull Hull
             #pragma domain Domain
+
             ENDHLSL
         }
 
+        Tags{
+           "RenderType" = "Opaque"
+        }
+        Pass{
+            Name "Outline"
+            Tags {
+                "LightMode" = "SRPDefaultUnlit"
+            }
+            Cull[_SRPDefaultUnlitColMode]
+            ColorMask[_SPRDefaultUnlitColorMask]
+            Blend SrcAlpha OneMinusSrcAlpha
+            Stencil
+            {
+                Ref[_StencilNo]
+                Comp[_StencilComp]
+                Pass[_StencilOpPass]
+                Fail[_StencilOpFail]
+
+            }
+
+            HLSLPROGRAM
+            #include "./UtsHDRP.hlsl"
+            #define AREA_SHADOW_LOW
+            #define SHADERPASS SHADERPASS_FORWARD
+            #define SHADOW_LOW
+            #define LIGHTLOOP_DISABLE_TILE_AND_CLUSTER
+
+            #pragma multi_compile _IS_OUTLINE_CLIPPING_NO _IS_OUTLINE_CLIPPING_YES
+            #pragma multi_compile _OUTLINE_NML _OUTLINE_POS
+            #pragma shader_feature _ _IS_CLIPPING_MATTE
+
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Material.hlsl"
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Lighting/Lighting.hlsl"
+
+            #ifdef DEBUG_DISPLAY
+                #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Debug/DebugDisplay.hlsl"
+            #endif
+
+            // The light loop (or lighting architecture) is in charge to:
+            // - Define light list
+            // - Define the light loop
+            // - Setup the constant/data
+            // - Do the reflection hierarchy
+            // - Provide sampling function for shadowmap, ies, cookie and reflection (depends on the specific use with the light loops like index array or atlas or single and texture format (cubemap/latlong))
+
+            #define HAS_LIGHTLOOP
+
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Lighting/LightLoop/LightLoopDef.hlsl"
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/Lit.hlsl"
+
+
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Lighting/LightLoop/LightLoop.hlsl"
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/ShaderPass/LitSharePass.hlsl"
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitData.hlsl"
+
+#ifdef UNITY_SHADER_VARIABLES_INCLUDED
+            #include "../../HDRP/Shaders/HDRPToonHead.hlsl"
+            #include "../../HDRP/Shaders/HDRPToonOutline.hlsl"
+#endif
+
+            #pragma vertex Vert
+            #pragma fragment Frag
+            #pragma hull Hull
+            #pragma domain Domain
+
+            ENDHLSL
+        }
+
+    }
+    // *************************** //
+    // ****** URP Subshader  ***** //
+    // *************************** //
+    SubShader 
+    {
+        PackageRequirements
+        {
+             "com.unity.render-pipelines.universal": "10.5.0"
+        }    
+        Tags {
+            "RenderType"="Opaque"
+            "RenderPipeline" = "UniversalPipeline"
+        }
+        Pass {
+            Name "Outline"
+            Tags {
+                "LightMode" = "SRPDefaultUnlit"
+            }
+            Cull [_SRPDefaultUnlitColMode]
+            ColorMask [_SPRDefaultUnlitColorMask]
+            Blend SrcAlpha OneMinusSrcAlpha
+            Stencil
+            {
+                Ref[_StencilNo]
+                Comp[_StencilComp]
+                Pass[_StencilOpPass]
+                Fail[_StencilOpFail]
+
+            }
+
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+
+
+            #pragma target 2.0
+            //V.2.0.4
+            #pragma multi_compile _IS_OUTLINE_CLIPPING_NO _IS_OUTLINE_CLIPPING_YES
+            #pragma multi_compile _OUTLINE_NML _OUTLINE_POS
+            // Outline is implemented in UniversalToonOutline.hlsl.
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+#ifdef UNIVERSAL_PIPELINE_CORE_INCLUDED
+            #include "../../UniversalRP/Shaders/UniversalToonInput.hlsl"
+            #include "../../UniversalRP/Shaders/UniversalToonHead.hlsl"
+            #include "../../UniversalRP/Shaders/UniversalToonOutline.hlsl"
+#endif
+            ENDHLSL
+        }
+
+//ToonCoreStart
+        Pass {
+            Name "ForwardLit"
+            Tags{"LightMode" = "UniversalForward"}
+            ZWrite[_ZWriteMode]
+            Cull[_CullMode]
+            Blend SrcAlpha OneMinusSrcAlpha
+            Stencil {
+
+                Ref[_StencilNo]
+
+                Comp[_StencilComp]
+                Pass[_StencilOpPass]
+                Fail[_StencilOpFail]
+
+            }
+
+            HLSLPROGRAM
+            #pragma prefer_hlslcc gles
+            #pragma exclude_renderers d3d11_9x
+            #pragma target 2.0
+
+            #pragma vertex vert
+            #pragma fragment frag
+
+#ifndef DISABLE_RP_SHADERS
+            // -------------------------------------
+            // urp Material Keywords
+            // -------------------------------------
+            #pragma shader_feature_local _ALPHAPREMULTIPLY_ON
+            #pragma shader_feature_local _EMISSION
+            #pragma shader_feature_local _METALLICSPECGLOSSMAP
+            #pragma shader_feature_local _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+//            #pragma shader_feature _OCCLUSIONMAP
+
+            #pragma shader_feature_local _SPECULARHIGHLIGHTS_OFF
+            #pragma shader_feature_local _ENVIRONMENTREFLECTIONS_OFF
+            #pragma shader_feature_local _SPECULAR_SETUP
+            #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
+#endif
+            // -------------------------------------
+            // Lightweight Pipeline keywords
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
+            #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
+            #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma multi_compile _ _SHADOWS_SOFT
+
+            #pragma multi_compile _ _MIXED_LIGHTING_SUBTRACTIVE
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile _ DIRLIGHTMAP_COMBINED
+            #pragma multi_compile _ LIGHTMAP_ON
+//            #pragma multi_compile_fog
+
+            #pragma multi_compile   _IS_PASS_FWDBASE
+            // DoubleShadeWithFeather and ShadingGradeMap use different fragment shader.  
+            #pragma shader_feature_local _ _SHADINGGRADEMAP
+
+
+            // used in ShadingGradeMap
+            #pragma shader_feature _IS_TRANSCLIPPING_OFF _IS_TRANSCLIPPING_ON
+            #pragma shader_feature _IS_ANGELRING_OFF _IS_ANGELRING_ON
+
+            // used in Shadow calculation 
+            #pragma shader_feature_local _ UTS_USE_RAYTRACING_SHADOW
+            // used in DoubleShadeWithFeather
+            #pragma shader_feature _IS_CLIPPING_OFF _IS_CLIPPING_MODE _IS_CLIPPING_TRANSMODE
+
+            #pragma shader_feature _EMISSIVE_SIMPLE _EMISSIVE_ANIMATION
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+#ifdef UNIVERSAL_PIPELINE_CORE_INCLUDED
+            #include "../../UniversalRP/Shaders/UniversalToonInput.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/LitForwardPass.hlsl"
+            #include "../../UniversalRP/Shaders/UniversalToonHead.hlsl"
+            #include "../../UniversalRP/Shaders/UniversalToonBody.hlsl"
+#endif
+            ENDHLSL
+            
+        }
+
+        Pass
+        {
+            Name "ShadowCaster"
+            Tags{"LightMode" = "ShadowCaster"}
+
+            ZWrite On
+            ZTest LEqual
+            Cull[_CullMode]
+
+            HLSLPROGRAM
+            // Required to compile gles 2.0 with standard srp library
+            #pragma prefer_hlslcc gles
+            #pragma exclude_renderers d3d11_9x
+            #pragma target 2.0
+
+            // -------------------------------------
+
+            #pragma shader_feature_local _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+
+            #pragma vertex ShadowPassVertex
+            #pragma fragment ShadowPassFragment
+
+            #include "../../UniversalRP/Shaders/UniversalToonInput.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/ShadowCasterPass.hlsl"
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Name "DepthOnly"
+            Tags{"LightMode" = "DepthOnly"}
+
+            ZWrite On
+            ColorMask 0
+            Cull[_CullMode]
+
+            HLSLPROGRAM
+            // Required to compile gles 2.0 with standard srp library
+            #pragma prefer_hlslcc gles
+            #pragma exclude_renderers d3d11_9x
+            #pragma target 2.0
+
+            #pragma vertex DepthOnlyVertex
+            #pragma fragment DepthOnlyFragment
+
+	    // -------------------------------------
+            // Material Keywords
+            #pragma shader_feature_local _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+
+
+
+            #include "../../UniversalRP/Shaders/UniversalToonInput.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/DepthOnlyPass.hlsl"
+            ENDHLSL
+        }
+        // This pass is used when drawing to a _CameraNormalsTexture texture
+        Pass
+        {
+            Name "DepthNormals"
+            Tags{"LightMode" = "DepthNormals"}
+
+            ZWrite On
+            Cull[_Cull]
+
+            HLSLPROGRAM
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Version.hlsl"
+#ifndef VERSION_GREATER_EQUAL
+#define VERSION_GREATER_EQUAL(x, y) 1
+#endif
+#if (VERSION_GREATER_EQUAL(10, 0))
+            // Required to compile gles 2.0 with standard srp library
+            #pragma prefer_hlslcc gles
+            #pragma exclude_renderers d3d11_9x
+            #pragma target 2.0
+
+            #pragma vertex DepthNormalsVertex
+            #pragma fragment DepthNormalsFragment
+
+            // -------------------------------------
+            // Material Keywords
+            #pragma shader_feature_local _PARALLAXMAP
+            #pragma shader_feature_local _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+
+
+            #include "../../UniversalRP/Shaders/UniversalToonInput.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/DepthNormalsPass.hlsl"
+#endif
+            ENDHLSL
+        }
+
+//ToonCoreEnd
+    }
+
+    // ***************************** //
+    // ****** Legacy Subshader ***** //
+    // ***************************** //
+
+    SubShader {
+        Tags {
+            "RenderType"="Opaque"
+        }
+        Pass {
+            Name "Outline"
+            Tags {
+                "LightMode"="ForwardBase"
+            }
+            Cull[_SRPDefaultUnlitColMode]
+            ColorMask[_SPRDefaultUnlitColorMask]
+            Blend SrcAlpha OneMinusSrcAlpha
+            Stencil
+            {
+                Ref[_StencilNo]
+                Comp[_StencilComp]
+                Pass[_StencilOpPass]
+                Fail[_StencilOpFail]
+
+            }
+            CGPROGRAM
+            #define TESSELLATION_ON
+            #pragma target 5.0
+            #pragma vertex tess_VertexInput
+            #pragma hull hs_VertexInput
+            #pragma domain ds_surf
+            #pragma fragment frag
+	    #ifdef TESSELLATION_ON
+            #include "../../Legacy/Shaders/UCTS_Tess.cginc"
+            #endif
+            #include "UnityCG.cginc"
+            //#pragma fragmentoption ARB_precision_hint_fastest
+            //#pragma multi_compile_shadowcaster
+            //#pragma multi_compile_fog
+            #pragma only_renderers d3d9 d3d11 glcore gles gles3 metal vulkan xboxone ps4 switch
+
+
+	    //V.2.0.4
+            #pragma multi_compile _IS_OUTLINE_CLIPPING_NO 
+            #pragma multi_compile _OUTLINE_NML _OUTLINE_POS
+            // Unity Toon Shader 0.5.0
+            #pragma multi_compile _ _DISABLE_OUTLINE
+            //The outline process goes to UTS_Outline.cginc.
+            #include "../../Legacy/Shaders/UCTS_Outline_tess.cginc"
+            ENDCG
+        }
+//ToonCoreStart
+        Pass {
+            Name "FORWARD"
+            Tags {
+                "LightMode"="ForwardBase"
+            }
+            ZWrite[_ZWriteMode]
+            Cull[_CullMode]
+            Blend SrcAlpha OneMinusSrcAlpha
+            Stencil {
+
+                Ref[_StencilNo]
+
+                Comp[_StencilComp]
+                Pass[_StencilOpPass]
+                Fail[_StencilOpFail]
+
+            }
+            CGPROGRAM
+            #define TESSELLATION_ON
+            #pragma target 5.0
+            #pragma vertex tess_VertexInput
+            #pragma hull hs_VertexInput
+            #pragma domain ds_surf
+            #pragma fragment frag
+
+	    #ifdef TESSELLATION_ON
+            #include "../../Legacy/Shaders/UCTS_Tess.cginc"
+            #endif
+            //#define UNITY_PASS_FORWARDBASE
+            #include "UnityCG.cginc"
+            #include "AutoLight.cginc"
+            #include "Lighting.cginc"
+            #pragma multi_compile_fwdbase_fullshadows
+//            #pragma multi_compile_fog
+            #pragma only_renderers d3d9 d3d11 glcore gles gles3 metal vulkan xboxone ps4 switch
+            #pragma target 5.0
+            // DoubleShadeWithFeather and ShadingGradeMap use different fragment shader.  
+            #pragma shader_feature_local _ _SHADINGGRADEMAP
+            // used in ShadingGradeMap
+            #pragma shader_feature _IS_TRANSCLIPPING_OFF _IS_TRANSCLIPPING_ON
+            #pragma shader_feature _IS_ANGELRING_OFF _IS_ANGELRING_ON
+            // used in DoubleShadeWithFeather
+            #pragma shader_feature _IS_CLIPPING_OFF _IS_CLIPPING_MODE _IS_CLIPPING_TRANSMODE
+            #pragma shader_feature _EMISSIVE_SIMPLE _EMISSIVE_ANIMATION
+            #pragma multi_compile _IS_PASS_FWDBASE
+
+            //
+            #pragma shader_feature_local UTS_USE_RAYTRACING_SHADOW
+#if defined(_SHADINGGRADEMAP)
+
+#include "../../Legacy/Shaders/UCTS_ShadingGradeMap.cginc"
+
+
+#else //#if defined(_SHADINGGRADEMAP)
+
+#include "../../Legacy/Shaders/UCTS_DoubleShadeWithFeather.cginc"
+
+
+#endif //#if defined(_SHADINGGRADEMAP)
+
+            ENDCG
+        }
+        Pass {
+            Name "FORWARD_DELTA"
+            Tags {
+                "LightMode"="ForwardAdd"
+            }
+
+            Blend One One
+            Cull[_CullMode]
+            
+            
+            CGPROGRAM
+            #define TESSELLATION_ON
+            #pragma target 5.0
+            #pragma vertex tess_VertexInput
+            #pragma hull hs_VertexInput
+            #pragma domain ds_surf
+            #pragma fragment frag
+
+	    #ifdef TESSELLATION_ON
+            #include "../../Legacy/Shaders/UCTS_Tess.cginc"
+            #endif
+            //#define UNITY_PASS_FORWARDADD
+            #include "UnityCG.cginc"
+            #include "AutoLight.cginc"
+            #include "Lighting.cginc"
+            //for Unity2018.x
+            #pragma multi_compile_fwdadd_fullshadows
+//            #pragma multi_compile_fog
+            #pragma only_renderers d3d9 d3d11 glcore gles gles3 metal vulkan xboxone ps4 switch
+            // DoubleShadeWithFeather and ShadingGradeMap use different fragment shader.  
+            #pragma shader_feature_local _ _SHADINGGRADEMAP
+            // used in ShadingGradeMap
+            #pragma shader_feature _IS_TRANSCLIPPING_OFF _IS_TRANSCLIPPING_ON
+            #pragma shader_feature _IS_ANGELRING_OFF _IS_ANGELRING_ON
+            // used in DoubleShadeWithFeather
+            #pragma shader_feature _IS_CLIPPING_OFF _IS_CLIPPING_MODE _IS_CLIPPING_TRANSMODE
+            #pragma shader_feature _EMISSIVE_SIMPLE _EMISSIVE_ANIMATION
+            //v.2.0.4
+
+            #pragma multi_compile _IS_PASS_FWDDELTA
+            #pragma shader_feature_local UTS_USE_RAYTRACING_SHADOW
+
+#if defined(_SHADINGGRADEMAP)
+
+#include "../../Legacy/Shaders/UCTS_ShadingGradeMap.cginc"
+
+
+#else //#if defined(_SHADINGGRADEMAP)
+
+#include "../../Legacy/Shaders/UCTS_DoubleShadeWithFeather.cginc"
+
+
+#endif //#if defined(_SHADINGGRADEMAP)
+
+            ENDCG
+        }
+        Pass {
+            Name "ShadowCaster"
+            Tags {
+                "LightMode"="ShadowCaster"
+            }
+            Offset 1, 1
+            Cull Off
+            
+            CGPROGRAM
+            #define TESSELLATION_ON
+            #pragma target 5.0
+            #pragma vertex tess_VertexInput
+            #pragma hull hs_VertexInput
+            #pragma domain ds_surf
+            #pragma fragment frag
+            #ifdef TESSELLATION_ON
+            #include "../../Legacy/Shaders/UCTS_Tess.cginc"
+            #endif
+            //#define UNITY_PASS_SHADOWCASTER
+            #include "UnityCG.cginc"
+            #include "Lighting.cginc"
+            #pragma fragmentoption ARB_precision_hint_fastest
+            #pragma multi_compile_shadowcaster
+//            #pragma multi_compile_fog
+            #pragma only_renderers d3d9 d3d11 glcore gles gles3 metal vulkan xboxone ps4 switch
+            //v.2.0.4
+            #pragma shader_feature _IS_CLIPPING_OFF _IS_CLIPPING_MODE _IS_CLIPPING_TRANSMODE
+            // Unity Toon Shader 0.5.0
+            #pragma multi_compile _ _DISABLE_OUTLINE
+            #include "../../Legacy/Shaders/UCTS_ShadowCaster_tess.cginc"
+            ENDCG
+
+        }
+//ToonCoreEnd
     }
 
     CustomEditor "UnityEditor.Rendering.Toon.UTS3GUI"
