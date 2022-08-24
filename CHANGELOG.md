@@ -1,4 +1,11 @@
 # Changelog
+## [0.8.1-preview] - 2022-08-24
+### Updated:
+* Updated some docs.
+### Fixed:
+* TOC didn't include the link to Material Converter page.
+* A image in index.md wasn't displayed in doc web site.
+
 ## [0.8.0-preview] - 2022-08-02
 ### Updated:
 * All the render pipeline shaders are integrated.
