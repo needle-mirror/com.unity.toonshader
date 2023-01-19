@@ -1,7 +1,7 @@
 {
   "name": "com.unity.toonshader",
   "displayName": "Unity Toon Shader",
-  "version": "0.8.3-preview",
+  "version": "0.8.4-preview",
   "unity": "2020.3",
   "description": "Unity Toon Shader (Unity-Chan Toon Shader 3) is a toon shader for images and video that is designed to meet the needs of creators working on cel-shaded 3DCG animations.\nUnlike other pre-render toon shaders, all features can be adjusted in real time on Unity, which is the greatest feature of UTS.\n\nUTS has great power and makes a wide variety of character designs possible, from cel-shaded to light novel illustration styles.\n\nUTS has the 3 basic layers of Base Color, 1st Shade Color, and 2nd Shade Color, colors and textures can also accept a wide variety of customization options, such as High Color, Rim Light, MatCap (sphere mapping), and Emissive (light emission).The level of gradation (feather) between colors can also be adjusted in Unity in real-time.\n\nMore precisely, View documentation above.",
   "dependencies": {
@@ -25,15 +25,15 @@
     }
   ],
   "_upm": {
-    "changelog": "### Fixed:\n* URP Shader doesn't work with Unity 2022.2.2f1.\n* Warrnings in HDRP shaders."
+    "changelog": "### Updated:\n* Shaders are compatible with some console platforms."
   },
   "upmCi": {
-    "footprint": "b66f53e1b1ec58d063c23bd8ff44ec579a60a2e4"
+    "footprint": "f7408317e62086327925ed1b22a2477286083ab8"
   },
   "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.toonshader@0.8/manual/index.html",
   "repository": {
     "url": "https://github.com/Unity-Technologies/com.unity.toonshader.git",
     "type": "git",
-    "revision": "0a6b10bfd086f55229d0327e1b839373fe9ed142"
+    "revision": "36e169c099d2634d0d26a374a17a3778320b4795"
   }
 }

@@ -8,7 +8,7 @@ Shader "Toon" {
         [HideInInspector][Enum(OFF, 0, ON, 1)] _isUnityToonshader("Material is touched by Unity Toon Shader", Int) = 1
         [HideInInspector] _utsVersionX("VersionX", Float) = 0
         [HideInInspector] _utsVersionY("VersionY", Float) = 8
-        [HideInInspector] _utsVersionZ("VersionZ", Float) = 3
+        [HideInInspector] _utsVersionZ("VersionZ", Float) = 4
         [HideInInspector] _utsTechnique ("Technique", int ) = 0 //DWF
         [HideInInspector] _AutoRenderQueue("Automatic Render Queue ", int) = 1
 
@@ -581,7 +581,7 @@ Shader "Toon" {
             HLSLPROGRAM
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
             #pragma target 4.5	    
-            #include "./UtsHDRP.hlsl"
+            #include "../../HDRP/Shaders/UtsHDRP.hlsl"
             // Note: Require _ObjectId and _PassValue variables
 
             // We reuse depth prepass for the scene selection, allow to handle alpha correctly as well as tessellation and vertex animation
@@ -621,7 +621,7 @@ Shader "Toon" {
             HLSLPROGRAM
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
             #pragma target 4.5	    
-            #include "./UtsHDRP.hlsl"
+            #include "../../HDRP/Shaders/UtsHDRP.hlsl"
 
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
             #pragma multi_compile _ DOTS_INSTANCING_ON
@@ -673,7 +673,7 @@ Shader "Toon" {
             HLSLPROGRAM
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
             #pragma target 4.5	    
-            #include "./UtsHDRP.hlsl"
+            #include "../../HDRP/Shaders/UtsHDRP.hlsl"
             // Lightmap memo
             // DYNAMICLIGHTMAP_ON is used when we have an "enlighten lightmap" ie a lightmap updated at runtime by enlighten.This lightmap contain indirect lighting from realtime lights and realtime emissive material.Offline baked lighting(from baked material / light,
             // both direct and indirect lighting) will hand up in the "regular" lightmap->LIGHTMAP_ON.
@@ -707,7 +707,7 @@ Shader "Toon" {
             HLSLPROGRAM
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
             #pragma target 4.5	    
-            #include "./UtsHDRP.hlsl"
+            #include "../../HDRP/Shaders/UtsHDRP.hlsl"
 
             #define SHADERPASS SHADERPASS_SHADOWS
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Material.hlsl"
@@ -743,7 +743,7 @@ Shader "Toon" {
             HLSLPROGRAM
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
             #pragma target 4.5	    
-            #include "./UtsHDRP.hlsl"
+            #include "../../HDRP/Shaders/UtsHDRP.hlsl"
             // In deferred, depth only pass don't output anything.
             // In forward it output the normal buffer
             #pragma multi_compile _ WRITE_NORMAL_BUFFER
@@ -789,7 +789,7 @@ Shader "Toon" {
             HLSLPROGRAM
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
             #pragma target 4.5	    
-            #include "./UtsHDRP.hlsl"
+            #include "../../HDRP/Shaders/UtsHDRP.hlsl"
             #pragma multi_compile _ WRITE_NORMAL_BUFFER
             #pragma multi_compile _ WRITE_MSAA_DEPTH
 
@@ -832,7 +832,7 @@ Shader "Toon" {
             HLSLPROGRAM
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
             #pragma target 4.5	    
-            #include "./UtsHDRP.hlsl"
+            #include "../../HDRP/Shaders/UtsHDRP.hlsl"
             #define SHADERPASS SHADERPASS_DISTORTION
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Material.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/Lit.hlsl"
@@ -858,7 +858,7 @@ Shader "Toon" {
             HLSLPROGRAM
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
             #pragma target 4.5	    
-            #include "./UtsHDRP.hlsl"
+            #include "../../HDRP/Shaders/UtsHDRP.hlsl"
             #define SHADERPASS SHADERPASS_DEPTH_ONLY
             #define CUTOFF_TRANSPARENT_DEPTH_PREPASS
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Material.hlsl"
@@ -888,7 +888,7 @@ Shader "Toon" {
             HLSLPROGRAM
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
             #pragma target 4.5	    
-            #include "./UtsHDRP.hlsl"
+            #include "../../HDRP/Shaders/UtsHDRP.hlsl"
             #pragma multi_compile _ DEBUG_DISPLAY
             #pragma multi_compile _ LIGHTMAP_ON
             #pragma multi_compile _ DIRLIGHTMAP_COMBINED
@@ -958,7 +958,7 @@ Shader "Toon" {
             HLSLPROGRAM
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
             #pragma target 4.5	    
-            #include "./UtsHDRP.hlsl"
+            #include "../../HDRP/Shaders/UtsHDRP.hlsl"
 //            #pragma multi_compile _ UTS_DEBUG_SHADOWMAP_BINALIZATION
             #pragma multi_compile _ DEBUG_DISPLAY
             #pragma multi_compile _ LIGHTMAP_ON
@@ -1036,7 +1036,7 @@ Shader "Toon" {
             HLSLPROGRAM
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
             #pragma target 4.5	    
-            #include "./UtsHDRP.hlsl"
+            #include "../../HDRP/Shaders/UtsHDRP.hlsl"
             #define SHADERPASS SHADERPASS_DEPTH_ONLY
             #define CUTOFF_TRANSPARENT_DEPTH_POSTPASS
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Material.hlsl"
@@ -1074,7 +1074,7 @@ Shader "Toon" {
             HLSLPROGRAM
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
             #pragma target 4.5	    
-            #include "./UtsHDRP.hlsl"
+            #include "../../HDRP/Shaders/UtsHDRP.hlsl"
             #define AREA_SHADOW_LOW
             #define SHADERPASS SHADERPASS_FORWARD
             #define SHADOW_LOW
@@ -1376,7 +1376,8 @@ Shader "Toon" {
             //#pragma fragmentoption ARB_precision_hint_fastest
             //#pragma multi_compile_shadowcaster
             //#pragma multi_compile_fog
-            #pragma only_renderers d3d9 d3d11 glcore gles gles3 metal vulkan xboxone ps4 switch
+            #pragma only_renderers d3d9 d3d11 glcore gles gles3 playstation xboxone xboxseries vulkan metal switch
+
             #pragma target 3.0
             //V.2.0.4
             #pragma multi_compile _IS_OUTLINE_CLIPPING_NO 
@@ -1414,7 +1415,8 @@ Shader "Toon" {
             #include "Lighting.cginc"
             #pragma multi_compile_fwdbase_fullshadows
             #pragma multi_compile_fog
-            #pragma only_renderers d3d9 d3d11 glcore gles gles3 metal vulkan xboxone ps4 switch
+            #pragma only_renderers d3d9 d3d11 glcore gles gles3 playstation xboxone xboxseries vulkan metal switch
+
             #pragma target 3.0
             // DoubleShadeWithFeather and ShadingGradeMap use different fragment shader.  
             #pragma shader_feature_local _ _SHADINGGRADEMAP
@@ -1462,7 +1464,8 @@ Shader "Toon" {
             //for Unity2018.x
             #pragma multi_compile_fwdadd_fullshadows
             #pragma multi_compile_fog
-            #pragma only_renderers d3d9 d3d11 glcore gles gles3 metal vulkan xboxone ps4 switch
+            #pragma only_renderers d3d9 d3d11 glcore gles gles3 playstation xboxone xboxseries vulkan metal switch
+
             #pragma target 3.0
             // DoubleShadeWithFeather and ShadingGradeMap use different fragment shader.  
             #pragma shader_feature_local _ _SHADINGGRADEMAP
@@ -1508,7 +1511,8 @@ Shader "Toon" {
             #pragma fragmentoption ARB_precision_hint_fastest
             #pragma multi_compile_shadowcaster
             #pragma multi_compile_fog
-            #pragma only_renderers d3d9 d3d11 glcore gles gles3 metal vulkan xboxone ps4 switch
+            #pragma only_renderers d3d9 d3d11 glcore gles gles3 playstation xboxone xboxseries vulkan metal switch
+
             #pragma target 3.0
             //v.2.0.4
             #pragma shader_feature _IS_CLIPPING_OFF _IS_CLIPPING_MODE _IS_CLIPPING_TRANSMODE
