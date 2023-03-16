@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Unity.FilmInternalUtilities;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -262,6 +263,9 @@ namespace UnityEditor.Rendering.Toon
             UTS3Converter.scrollView.Add(item);
         }
 
-
+        protected void SendAnalyticsEvent()
+        {
+            AnalyticsSender.SendEventInEditor(new ToonShaderAnalytics.ConvertEvent(GetType().Name));
+        }
     }
 }
