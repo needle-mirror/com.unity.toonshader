@@ -1,4 +1,9 @@
 # Changelog
+## [0.9.5-preview] - 2023-08-25
+### Fixed
+* A URP Shader error when using newer than 2023.1.3.
+* A Null Reference Exception error with HDRP tesslation shader.
+
 ## [0.9.4-preview] - 2023-05-01
 * Added a exlanation for URP line issue  into Kown Issues.
 
