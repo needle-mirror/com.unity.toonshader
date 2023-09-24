@@ -8,7 +8,7 @@ Shader "Toon(Tessellation)" {
         [HideInInspector][Enum(OFF, 0, ON, 1)] _isUnityToonshader("Material is touched by Unity Toon Shader", Int) = 1
         [HideInInspector] _utsVersionX("VersionX", Float) = 0
         [HideInInspector] _utsVersionY("VersionY", Float) = 9
-        [HideInInspector] _utsVersionZ("VersionZ", Float) = 5
+        [HideInInspector] _utsVersionZ("VersionZ", Float) = 6
         [HideInInspector] _utsTechnique ("Technique", int ) = 0 //DWF
         _AutoRenderQueue("Automatic Render Queue ", int) = 1
 
@@ -1278,7 +1278,8 @@ Shader "Toon(Tessellation)" {
             #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile _ _SHADOWS_SOFT
             #pragma multi_compile _ _FORWARD_PLUS
-            
+            #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
+
             #pragma multi_compile _ _MIXED_LIGHTING_SUBTRACTIVE
             // -------------------------------------
             // Unity defined keywords
