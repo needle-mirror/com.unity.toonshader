@@ -13,9 +13,9 @@ namespace UnityEditor.Rendering.Toon
 
         internal const float kVersionX = 0.0f;
         internal const float kVersionY = 9.0f;
-        internal const float kVersionZ = 6.0f;
+        internal const float kVersionZ = 7.0f;
 
-        internal static string versionString => "0.9.6-preview";
+        internal static string versionString => "0.9.7-preview";
 
         // Render Pipelines UTS supports are the followings 
         internal enum RenderPipeline
@@ -1423,13 +1423,8 @@ namespace UnityEditor.Rendering.Toon
                 m_MaterialEditor.TexturePropertySingleLine(Styles.secondShadeColorText, secondShadeMap, secondShadeColor);
             }
             EditorGUILayout.Space();
+            m_MaterialEditor.TextureScaleOffsetProperty(mainTex);
 
-            /*
-            _NormalMap_Foldout = FoldoutSubMenu(_NormalMap_Foldout, Styles.normalMapFoldout);
-            if (_NormalMap_Foldout)
-            {
-            }
-            */
             _ShadowControlMaps_Foldout = FoldoutSubMenu(_ShadowControlMaps_Foldout, Styles.shadowControlMapFoldout);
             if (_ShadowControlMaps_Foldout)
             {

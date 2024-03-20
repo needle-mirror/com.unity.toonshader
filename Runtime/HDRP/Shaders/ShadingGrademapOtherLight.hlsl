@@ -64,7 +64,7 @@ float3 UTS_OtherLightsShadingGrademap(FragInputs input, float3 i_normalDir,
 
 #endif //#ifdef UTS_LAYER_VISIBILITY
     //v.2.0.5
-    float4 _1st_ShadeMap_var = lerp(SAMPLE_TEXTURE2D(_1st_ShadeMap, sampler_MainTex, TRANSFORM_TEX(Set_UV0, _1st_ShadeMap)), _MainTex_var, _Use_BaseAs1st);
+    float4 _1st_ShadeMap_var = lerp(SAMPLE_TEXTURE2D(_1st_ShadeMap, sampler_MainTex, TRANSFORM_TEX(Set_UV0, _MainTex)), _MainTex_var, _Use_BaseAs1st);
     float3 Set_1st_ShadeColor = lerp((_1st_ShadeColor.rgb * _1st_ShadeMap_var.rgb * _LightIntensity), ((_1st_ShadeColor.rgb * _1st_ShadeMap_var.rgb) * Set_LightColor), _Is_LightColor_1st_Shade);
 #ifdef UTS_LAYER_VISIBILITY
     {
@@ -76,7 +76,7 @@ float3 UTS_OtherLightsShadingGrademap(FragInputs input, float3 i_normalDir,
     float Set_1st_ShadeAlpha = _FirstShadeVisible;
 #endif //#ifdef UTS_LAYER_VISIBILITY    //v.2.0.5
     //v.2.0.5
-    float4 _2nd_ShadeMap_var = lerp(SAMPLE_TEXTURE2D(_2nd_ShadeMap, sampler_MainTex, TRANSFORM_TEX(Set_UV0, _2nd_ShadeMap)), _1st_ShadeMap_var, _Use_1stAs2nd);
+    float4 _2nd_ShadeMap_var = lerp(SAMPLE_TEXTURE2D(_2nd_ShadeMap, sampler_MainTex, TRANSFORM_TEX(Set_UV0, _MainTex)), _1st_ShadeMap_var, _Use_1stAs2nd);
     float3 Set_2nd_ShadeColor = lerp((_2nd_ShadeColor.rgb * _2nd_ShadeMap_var.rgb * _LightIntensity), ((_2nd_ShadeColor.rgb * _2nd_ShadeMap_var.rgb) * Set_LightColor), _Is_LightColor_2nd_Shade);
 #ifdef UTS_LAYER_VISIBILITY
     {

@@ -4,7 +4,14 @@
 
 
 
-        float4 fragShadingGradeMap(VertexOutput i, fixed facing : VFACE) : SV_TARGET
+        void fragShadingGradeMap(
+            VertexOutput i
+            , fixed facing : VFACE
+            , out float4 finalRGBA : SV_Target0
+        #ifdef _WRITE_RENDERING_LAYERS
+            , out float4 outRenderingLayers : SV_Target1
+        #endif
+        )
         {
 
                 i.normalDir = normalize(i.normalDir);
@@ -76,8 +83,17 @@
                 envColor *= 1.8f;
 
                 UtsLight mainLight = GetMainUtsLightByID(i.mainLightID, i.posWorld.xyz, inputData.shadowCoord, i.positionCS);
-                half3 mainLightColor = GetLightColor(mainLight);
 
+#if defined(_LIGHT_LAYERS)
+                uint meshRenderingLayers = GetMeshRenderingLayer();
+#endif
+
+                half3 mainLightColor = GetLightColor(
+                    mainLight
+                #ifdef _LIGHT_LAYERS
+                    , meshRenderingLayers
+                #endif
+                );
 
                 float4 _MainTex_var = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, TRANSFORM_TEX(Set_UV0, _MainTex));
 
@@ -131,7 +147,7 @@
                 float3 Set_LightColor = lightColor.rgb;
                 float3 Set_BaseColor = lerp( (_MainTex_var.rgb*_BaseColor.rgb), ((_MainTex_var.rgb*_BaseColor.rgb)*Set_LightColor), _Is_LightColor_Base );
                 //v.2.0.5
-                float4 _1st_ShadeMap_var = lerp(SAMPLE_TEXTURE2D(_1st_ShadeMap,sampler_MainTex, TRANSFORM_TEX(Set_UV0, _1st_ShadeMap)),_MainTex_var,_Use_BaseAs1st);
+                float4 _1st_ShadeMap_var = lerp(SAMPLE_TEXTURE2D(_1st_ShadeMap,sampler_MainTex, TRANSFORM_TEX(Set_UV0, _MainTex)),_MainTex_var,_Use_BaseAs1st);
                 float3 _Is_LightColor_1st_Shade_var = lerp( (_1st_ShadeMap_var.rgb*_1st_ShadeColor.rgb), ((_1st_ShadeMap_var.rgb*_1st_ShadeColor.rgb)*Set_LightColor), _Is_LightColor_1st_Shade );
                 float _HalfLambert_var = 0.5*dot(lerp( i.normalDir, normalDirection, _Is_NormalMapToBase ),lightDirection)+0.5; // Half Lambert
 
@@ -158,7 +174,7 @@
                 float Set_FinalShadowMask = saturate((1.0 + ( (Set_ShadingGrade - (_1st_ShadeColor_Step-_1st_ShadeColor_Feather)) * (0.0 - 1.0) ) / (_1st_ShadeColor_Step - (_1st_ShadeColor_Step-_1st_ShadeColor_Feather)))); // Base and 1st Shade Mask
                 float3 _BaseColor_var = lerp(Set_BaseColor,_Is_LightColor_1st_Shade_var,Set_FinalShadowMask);
                 //v.2.0.5
-                float4 _2nd_ShadeMap_var = lerp(SAMPLE_TEXTURE2D(_2nd_ShadeMap,sampler_MainTex, TRANSFORM_TEX(Set_UV0, _2nd_ShadeMap)),_1st_ShadeMap_var,_Use_1stAs2nd);
+                float4 _2nd_ShadeMap_var = lerp(SAMPLE_TEXTURE2D(_2nd_ShadeMap,sampler_MainTex, TRANSFORM_TEX(Set_UV0, _MainTex)),_1st_ShadeMap_var,_Use_1stAs2nd);
                 float Set_ShadeShadowMask = saturate((1.0 + ( (Set_ShadingGrade - (_2nd_ShadeColor_Step-_2nd_ShadeColor_Feather)) * (0.0 - 1.0) ) / (_2nd_ShadeColor_Step - (_2nd_ShadeColor_Step-_2nd_ShadeColor_Feather)))); // 1st and 2nd Shades Mask
                 //Composition: 3 Basic Colors as Set_FinalBaseColor
                 float3 Set_FinalBaseColor = lerp(_BaseColor_var,lerp(_Is_LightColor_1st_Shade_var,lerp( (_2nd_ShadeMap_var.rgb*_2nd_ShadeColor.rgb), ((_2nd_ShadeMap_var.rgb*_2nd_ShadeColor.rgb)*Set_LightColor), _Is_LightColor_2nd_Shade ),Set_ShadeShadowMask),Set_FinalShadowMask);
@@ -331,7 +347,12 @@
                         float notDirectional = 1.0f; //_WorldSpaceLightPos0.w of the legacy code.
                         UtsLight additionalLight = GetUrpMainUtsLight(0,0);
                         additionalLight = GetAdditionalUtsLight(loopCounter, inputData.positionWS, i.positionCS);
-                        half3 additionalLightColor = GetLightColor(additionalLight);
+                        half3 additionalLightColor = GetLightColor(
+                            additionalLight
+                        #ifdef _LIGHT_LAYERS
+                            , meshRenderingLayers
+                        #endif
+                        );
 
                         float3 lightDirection = additionalLight.direction;
                         //v.2.0.5: 
@@ -351,10 +372,10 @@
                         //
                         float3 Set_BaseColor = lerp((_BaseColor.rgb*_MainTex_var.rgb*_LightIntensity), ((_BaseColor.rgb*_MainTex_var.rgb)*Set_LightColor), _Is_LightColor_Base);
                         //v.2.0.5
-                        float4 _1st_ShadeMap_var = lerp(SAMPLE_TEXTURE2D(_1st_ShadeMap, sampler_MainTex,TRANSFORM_TEX(Set_UV0, _1st_ShadeMap)), _MainTex_var, _Use_BaseAs1st);
+                        float4 _1st_ShadeMap_var = lerp(SAMPLE_TEXTURE2D(_1st_ShadeMap, sampler_MainTex,TRANSFORM_TEX(Set_UV0, _MainTex)), _MainTex_var, _Use_BaseAs1st);
                         float3 Set_1st_ShadeColor = lerp((_1st_ShadeColor.rgb*_1st_ShadeMap_var.rgb*_LightIntensity), ((_1st_ShadeColor.rgb*_1st_ShadeMap_var.rgb)*Set_LightColor), _Is_LightColor_1st_Shade);
                         //v.2.0.5
-                        float4 _2nd_ShadeMap_var = lerp(SAMPLE_TEXTURE2D(_2nd_ShadeMap, sampler_MainTex,TRANSFORM_TEX(Set_UV0, _2nd_ShadeMap)), _1st_ShadeMap_var, _Use_1stAs2nd);
+                        float4 _2nd_ShadeMap_var = lerp(SAMPLE_TEXTURE2D(_2nd_ShadeMap, sampler_MainTex,TRANSFORM_TEX(Set_UV0, _MainTex)), _1st_ShadeMap_var, _Use_1stAs2nd);
                         float3 Set_2nd_ShadeColor = lerp((_2nd_ShadeColor.rgb*_2nd_ShadeMap_var.rgb*_LightIntensity), ((_2nd_ShadeColor.rgb*_2nd_ShadeMap_var.rgb)*Set_LightColor), _Is_LightColor_2nd_Shade);
                         float _HalfLambert_var = 0.5*dot(lerp(i.normalDir, normalDirection, _Is_NormalMapToBase), lightDirection) + 0.5;
 
@@ -428,8 +449,12 @@
                         {
                             additionalLight = GetAdditionalUtsLight(iLight, inputData.positionWS, i.positionCS);
                         }
-                        half3 additionalLightColor = GetLightColor(additionalLight);
-
+                        half3 additionalLightColor = GetLightColor(
+                            additionalLight
+                        #ifdef _LIGHT_LAYERS
+                            , meshRenderingLayers
+                        #endif
+                        );
 
 
                         float3 lightDirection = additionalLight.direction;
@@ -450,10 +475,10 @@
                         //
                         float3 Set_BaseColor = lerp((_BaseColor.rgb*_MainTex_var.rgb*_LightIntensity), ((_BaseColor.rgb*_MainTex_var.rgb)*Set_LightColor), _Is_LightColor_Base);
                         //v.2.0.5
-                        float4 _1st_ShadeMap_var = lerp(SAMPLE_TEXTURE2D(_1st_ShadeMap, sampler_MainTex,TRANSFORM_TEX(Set_UV0, _1st_ShadeMap)), _MainTex_var, _Use_BaseAs1st);
+                        float4 _1st_ShadeMap_var = lerp(SAMPLE_TEXTURE2D(_1st_ShadeMap, sampler_MainTex,TRANSFORM_TEX(Set_UV0, _MainTex)), _MainTex_var, _Use_BaseAs1st);
                         float3 Set_1st_ShadeColor = lerp((_1st_ShadeColor.rgb*_1st_ShadeMap_var.rgb*_LightIntensity), ((_1st_ShadeColor.rgb*_1st_ShadeMap_var.rgb)*Set_LightColor), _Is_LightColor_1st_Shade);
                         //v.2.0.5
-                        float4 _2nd_ShadeMap_var = lerp(SAMPLE_TEXTURE2D(_2nd_ShadeMap, sampler_MainTex,TRANSFORM_TEX(Set_UV0, _2nd_ShadeMap)), _1st_ShadeMap_var, _Use_1stAs2nd);
+                        float4 _2nd_ShadeMap_var = lerp(SAMPLE_TEXTURE2D(_2nd_ShadeMap, sampler_MainTex,TRANSFORM_TEX(Set_UV0, _MainTex)), _1st_ShadeMap_var, _Use_1stAs2nd);
                         float3 Set_2nd_ShadeColor = lerp((_2nd_ShadeColor.rgb*_2nd_ShadeMap_var.rgb*_LightIntensity), ((_2nd_ShadeColor.rgb*_2nd_ShadeMap_var.rgb)*Set_LightColor), _Is_LightColor_2nd_Shade);
                         float _HalfLambert_var = 0.5*dot(lerp(i.normalDir, normalDirection, _Is_NormalMapToBase), lightDirection) + 0.5;
 
@@ -547,19 +572,19 @@
 //v.2.0.4
 #ifdef _IS_TRANSCLIPPING_OFF
 
-                fixed4 finalRGBA = fixed4(finalColor,1);
+                finalRGBA = fixed4(finalColor,1);
 
 #elif _IS_TRANSCLIPPING_ON
                 float Set_Opacity = SATURATE_IF_SDR((_Inverse_Clipping_var+_Tweak_transparency));
 
-                fixed4 finalRGBA = fixed4(finalColor,Set_Opacity);
+                finalRGBA = fixed4(finalColor,Set_Opacity);
 
 #endif
 
-
-                return finalRGBA;
-
-
+#ifdef _WRITE_RENDERING_LAYERS
+                uint renderingLayers = GetMeshRenderingLayer();
+                outRenderingLayers = float4(EncodeMeshRenderingLayer(renderingLayers), 0, 0, 0);
+#endif
         }
 
 

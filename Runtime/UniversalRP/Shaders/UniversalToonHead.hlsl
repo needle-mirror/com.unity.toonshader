@@ -144,7 +144,6 @@ inline half3 LinearToGammaSpace(half3 linRGB)
 #endif
 
 // Transforms 2D UV by scale/bias property
-//#define TRANSFORM_TEX(tex,name) (tex.xy * name##_ST.xy + name##_ST.zw)
 #define UCTS_TEXTURE2D(tex,name)  SAMPLE_TEXTURE2D(tex,sampler##tex,TRANSFORM_TEX(name, tex));
 
 inline float4 UnityObjectToClipPosInstanced(in float3 pos)
