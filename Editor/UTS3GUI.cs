@@ -12,10 +12,10 @@ namespace UnityEditor.Rendering.Toon
 
 
         internal const float kVersionX = 0.0f;
-        internal const float kVersionY = 9.0f;
-        internal const float kVersionZ = 7.0f;
+        internal const float kVersionY = 10.0f;
+        internal const float kVersionZ = 0.0f;
 
-        internal static string versionString => "0.9.7-preview";
+        internal static string versionString => "0.10.0-preview";
 
         // Render Pipelines UTS supports are the followings 
         internal enum RenderPipeline
@@ -1036,11 +1036,11 @@ namespace UnityEditor.Rendering.Toon
             EditorGUIUtility.fieldWidth = 0;
             if (m_FirstTimeApply)
             {
-                FindProperties(props);
                 OnOpenGUI(material, materialEditor, props);
                 m_FirstTimeApply = false;
             }
 
+            FindProperties(props);
             UpdateVersionInMaterial(material);
 
             m_autoRenderQueue = MaterialGetInt(material,ShaderPropAutoRenderQueue);
