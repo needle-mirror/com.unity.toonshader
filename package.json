@@ -1,7 +1,7 @@
 {
   "name": "com.unity.toonshader",
   "displayName": "Unity Toon Shader",
-  "version": "0.10.0-preview",
+  "version": "0.10.1-preview",
   "unity": "2020.3",
   "description": "Unity Toon Shader (Unity-Chan Toon Shader 3) is a toon shader for images and video that is designed to meet the needs of creators working on cel-shaded 3DCG animations.\nUnlike other pre-render toon shaders, all features can be adjusted in real time on Unity, which is the greatest feature of UTS.\n\nUTS has great power and makes a wide variety of character designs possible, from cel-shaded to light novel illustration styles.\n\nUTS has the 3 basic layers of Base Color, 1st Shade Color, and 2nd Shade Color, colors and textures can also accept a wide variety of customization options, such as High Color, Rim Light, MatCap (sphere mapping), and Emissive (light emission).The level of gradation (feather) between colors can also be adjusted in Unity in real-time.\n\nMore precisely, View documentation above.",
   "dependencies": {
@@ -26,15 +26,15 @@
     }
   ],
   "_upm": {
-    "changelog": "### Updated:\n* URP shader is compatible with DOTS instancing. (Thanks to Hum9183)\n### Fixed:\n* Base Map/1st Shade Map/2nd Shade Map missing Tiling & Offset values are applied to Clipping Masks.\n* Undoing/Redoing Tiling & Offset won't be reflected on the screen until slection is changed.(Thanks to Hum9183)"
+    "changelog": "### Fixed:\n* URP Shader Eroors on newer then Unity 6000.0.9.\n* HDRP Shder Erorrs on Unity 6. (Thanks to riina)\n* SceneView Flickers when Light probe on HDRP shaders."
   },
   "upmCi": {
-    "footprint": "1f41ab14019a34df3ca51f1a2142d6ca32e06ae6"
+    "footprint": "b737552fc9517b4b31c32320cc08089fff011f12"
   },
   "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.toonshader@0.10/manual/index.html",
   "repository": {
     "url": "https://github.com/Unity-Technologies/com.unity.toonshader.git",
     "type": "git",
-    "revision": "686591be7854499fcc15b7bc10b417a863f0b092"
+    "revision": "1dcd71e7e99064d879594fc5b9c26f8333f99ea5"
   }
 }
