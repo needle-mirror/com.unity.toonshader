@@ -6,7 +6,7 @@ using System.Reflection;
 using UnityEngine.TestTools;
 
 namespace Unity.Rendering.ToonShader.Tests {
-    public class ShaderCompileTest
+    internal class ShaderCompileTest
     {
         
         [Test]

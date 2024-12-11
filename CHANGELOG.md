@@ -1,4 +1,18 @@
 # Changelog
+
+## [0.11.0-preview] - 2024-12-11
+
+### Changed:
+* api: change the accessor of internal test classes to internal
+* api: change the accessor of UTS3MaterialHeaderScope to internal
+* api: change the accessor of UTS3MaterialHeaderScopeList to internal
+* api: change the accessor of UTS3MaterialEditorExtension and MaterialEditorExtension to internal
+* docs: update Unity Editor Compatibility
+* deps:  use com.unity.film-internal-utilities@0.19.2-preview
+
+### Removed:
+* api: remove unused empty UniversalToonShaderInfo class
+
 ## [0.10.2-preview] - 2024-08-20
 ### Fixed:
 * Plane objects can not be chosen from their front face in SceneViews.
