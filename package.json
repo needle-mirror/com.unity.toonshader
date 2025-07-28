@@ -1,7 +1,7 @@
 {
   "name": "com.unity.toonshader",
   "displayName": "Unity Toon Shader",
-  "version": "0.11.1-preview",
+  "version": "0.12.0-preview",
   "unity": "2021.3",
   "description": "Unity Toon Shader (Unity-Chan Toon Shader 3) is a toon shader for images and video that is designed to meet the needs of creators working on cel-shaded 3DCG animations.\nUnlike other pre-render toon shaders, all features can be adjusted in real time on Unity, which is the greatest feature of UTS.\n\nUTS has great power and makes a wide variety of character designs possible, from cel-shaded to light novel illustration styles.\n\nUTS has the 3 basic layers of Base Color, 1st Shade Color, and 2nd Shade Color, colors and textures can also accept a wide variety of customization options, such as High Color, Rim Light, MatCap (sphere mapping), and Emissive (light emission).The level of gradation (feather) between colors can also be adjusted in Unity in real-time.\n\nMore precisely, View documentation above.",
   "dependencies": {
@@ -10,9 +10,9 @@
   },
   "samples": [
     {
-      "displayName": "Legacy render pipeline",
-      "description": "Sample scenes for the legacy (built-in) pipe-lines.",
-      "path": "Samples~/Legacy"
+      "displayName": "Built-In render pipeline",
+      "description": "Sample scenes for Built-In render pipeline.",
+      "path": "Samples~/Built-In_RP"
     },
     {
       "displayName": "Universal render pipeline",
@@ -26,15 +26,15 @@
     }
   ],
   "_upm": {
-    "changelog": "### Added\n* sample: add metaverse materials and prefabs of Unity-chan in the HDRP sample\n\n### Fixed\n* fix: calling InitializeBakedGIData() is necessary for Unity newer than 6000.0.12\n* doc: fix incorrect table layout documentation in sections under Inspector Window Settings"
+    "changelog": "### Added\n* feat: make toon URP work show basic colors/texture and outline in 2D light environment\n\n### Changed\n* doc: improve documentation accessibility\n\n### Fixed\n* fix: errors when unlit mode is selected in the SceneView\n* fix: undefined punctual shadow keywords for HDRP in Unity 6000.0 or later\n* fix: dark areas instead of outlines in WebGL and OpenGL"
   },
   "upmCi": {
-    "footprint": "910c9a15f25e90737aaf2bfbe76ffca08523834b"
+    "footprint": "527839cb982bd5263416bc042abb4b1cb03f22c9"
   },
-  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.toonshader@0.11/manual/index.html",
+  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.toonshader@0.12/manual/index.html",
   "repository": {
     "url": "https://github.com/Unity-Technologies/com.unity.toonshader.git",
     "type": "git",
-    "revision": "4ca1151ae303674f53d3330b9e49428a60eeeab1"
+    "revision": "d431004bedd3f1755aea153779520fd31e4cb7ae"
   }
 }
