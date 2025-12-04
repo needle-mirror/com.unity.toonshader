@@ -1,6 +1,6 @@
 //Unity Toon Shader/HDRP
 //nobuyuki@unity3d.com
-//toshiyuki@unity3d.com (Universal RP/HDRP) 
+//toshiyuki@unity3d.com (Universal RP/HDRP)
 
 
 #ifndef DirectionalShadowType
@@ -77,7 +77,7 @@ float3 UTS_MainLightShadingGrademap(LightLoopContext lightLoopContext, FragInput
         SampleBakedGI_UTS(posInput.positionWS, float3(0.0, 0.0, 0.0), input.texCoord1.xy, input.texCoord2.xy, true),
         SampleBakedGI_UTS(posInput.positionWS, float3(0.0, -1.0, 0.0), input.texCoord1.xy, input.texCoord2.xy, true)
         ) * _Unlit_Intensity));
-    float3 customLightDirection = normalize(mul(UNITY_MATRIX_M, float4(((float3(1.0, 0.0, 0.0) * _Offset_X_Axis_BLD * 10) + (float3(0.0, 1.0, 0.0) * _Offset_Y_Axis_BLD * 10) + (float3(0.0, 0.0, -1.0) * lerp(-1.0, 1.0, _Inverse_Z_Axis_BLD))), 0)).xyz);    
+    float3 customLightDirection = normalize(mul(UNITY_MATRIX_M, float4(((float3(1.0, 0.0, 0.0) * _Offset_X_Axis_BLD * 10) + (float3(0.0, 1.0, 0.0) * _Offset_Y_Axis_BLD * 10) + (float3(0.0, 0.0, -1.0) * lerp(-1.0, 1.0, _Inverse_Z_Axis_BLD))), 0)).xyz);
     float3 lightDirection = normalize(lerp(defaultLightDirection, mainLihgtDirection.xyz, any(mainLihgtDirection.xyz)));
     lightDirection = lerp(lightDirection, customLightDirection, _Is_BLD);
     float3 originalLightColor = mainLightColor.rgb;
@@ -120,11 +120,10 @@ float3 UTS_MainLightShadingGrademap(LightLoopContext lightLoopContext, FragInput
      //v.2.0.6
     float4 _ShadingGradeMap_var = tex2Dlod(_ShadingGradeMap, float4(TRANSFORM_TEX(Set_UV0, _ShadingGradeMap), 0.0, _BlurLevelSGM));
     //v.2.0.6
-    //Minmimum value is same as the Minimum Feather's value with the Minimum Step's value as threshold.
-#if !defined (UTS_USE_RAYTRACING_SHADOW)
+    //Minimum value is same as the Minimum Feather's value with the Minimum Step's value as threshold.
     shadowAttenuation *= 2.0f;
     shadowAttenuation = saturate(shadowAttenuation);
-#endif
+    
     float _SystemShadowsLevel_var = (shadowAttenuation *0.5)+0.5+_Tweak_SystemShadowsLevel > 0.001 ? (shadowAttenuation*0.5)+0.5+_Tweak_SystemShadowsLevel : 0.0001;
 
     float _ShadingGradeMapLevel_var = _ShadingGradeMap_var.r < 0.95 ? _ShadingGradeMap_var.r + _Tweak_ShadingGradeMapLevel : 1;
@@ -175,7 +174,7 @@ float3 UTS_MainLightShadingGrademap(LightLoopContext lightLoopContext, FragInput
                 lerp(_Is_LightColor_1st_Shade_var, _Is_LightColor_2nd_Shade_var
                     , Set_ShadeShadowMask)
                 , Set_FinalShadowMask);
-        channelOutAlpha = 
+        channelOutAlpha =
             lerp(Set_BaseColorAlpha, lerp(Set_1st_ShadeAlpha, Set_2nd_ShadeAlpha, Set_ShadeShadowMask),Set_FinalShadowMask);
 
     }
@@ -322,7 +321,7 @@ float3 UTS_MainLightShadingGrademap(LightLoopContext lightLoopContext, FragInput
     //v.2.0.6 : LOD of Matcap
     float4 _MatCap_Sampler_var = tex2Dlod(_MatCap_Sampler, float4(TRANSFORM_TEX(_Rot_MatCapUV_var, _MatCap_Sampler), 0.0, _BlurLevelMatcap));
     float4 _Set_MatcapMask_var = tex2D(_Set_MatcapMask, TRANSFORM_TEX(Set_UV0, _Set_MatcapMask));
-    //                
+    //
     //MatcapMask
     float _Tweak_MatcapMaskLevel_var = saturate(lerp(_Set_MatcapMask_var.g, (1.0 - _Set_MatcapMask_var.g), _Inverse_MatcapMask) + _Tweak_MatcapMaskLevel);
     float3 _Is_LightColor_MatCap_var = lerp((_MatCap_Sampler_var.rgb * _MatCapColor.rgb), ((_MatCap_Sampler_var.rgb * _MatCapColor.rgb) * Set_LightColor), _Is_LightColor_MatCap);

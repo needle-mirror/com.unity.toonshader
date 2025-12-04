@@ -1,63 +1,84 @@
-# Getting started with Unity Toon Shader
+# Getting Started with Unity Toon Shader
 
-The **Unity Toon Shader**(UTS) provides tons of properties for professional cel-shading, though. In this page, you'll learn what are keys for basic cel-shading step by step. 
+The **Unity Toon Shader (UTS)** provides extensive controls 
+for professional cel-shading across the Built-in Render Pipeline, URP, and HDRP. 
+This page walks through the key concepts of cel-shading step by step.
 
-What you have to do for simple cel-shading are:
-* [Make sure at least one directional light is in the scene](#put-a-directional-light-in-the-scene).
-* [Create materials for cel-shading and set appropriate shader path](#creating-a-new-material-and-applying-unity-toon-shader).
-* [Set up three basic colors](#setting-up-three-basic-colors).
-* [Determine touch of the character](#adjusting-edge-of-three-basic-color-region).
-* [Set Outline](#set-outline).
+Follow these steps for simple cel-shading:
+1. [Put a directional light in the scene](#put-a-directional-light-in-the-scene).
+2. [Create materials for cel-shading and set the appropriate shader](#creating-a-new-material-and-applying-unity-toon-shader).
+3. [Set up three basic colors](#setting-up-three-basic-colors).
+4. [Determine the character's visual style](#adjusting-the-edges-of-the-three-basic-color-regions).
+5. [Set up the outline](#set-up-the-outline).
 
-After mastering above you might want to check:
-* [Advanced techniques](#advanced-techniques).
-  * [Eliminate outlines around eyes](#eliminating-outlines-around-eyes).
-  * [Add luster to hair](#adding-luster-to-hair).
-* [Options for stunning professional cel-shading](#more-options-for-stunning-professional-cel-shading).
+After mastering the basics, explore:
 
+- [Advanced techniques](#advanced-techniques) such as:
+    * [Eliminating outlines around eyes](#eliminating-outlines-around-eyes).
+    * [Adding luster to hair](#adding-luster-to-hair).
+- [More options for stunning professional cel-shading](#more-options-for-stunning-professional-cel-shading) to push the look further.
 
 ## Put a directional light in the scene
-To make cel-shading work. You need to place at least one [directional light](https://docs.unity3d.com/2022.2/Documentation/Manual/Lighting.html) in the scene.
+
+To make cel-shading work, you need to place at least one [directional light](https://docs.unity3d.com/2022.2/Documentation/Manual/Lighting.html) in the scene. 
+Start with a neutral white light so you can see how UTS-specific settings influence the shading 
+without additional color shifts.
 
 ## Creating a new material and applying Unity Toon Shader
 
-Start from [creating a material](https://docs.unity3d.com/2022.2/Documentation/Manual/materials-introduction.html).
+Start by [creating a material](https://docs.unity3d.com/6000.0/Documentation/Manual/materials-introduction.html) for your mesh and then assign the UTS shader:
 
-![A fully white chibi-style character model with long hair and rabbit ears. The Inspector window is open with the Lit material of the Universal Render Pipeline.](images/UrpLitMaterial.png)<br/>
-Selecting the appropriate shader for the material. 
-
-Because the **Unity Toon Shader**(UTS) is capable of all the render pipelines, the Built-in Render Pipeline, URP, and HDRP, The shaders you need to choose are just Toon or Toon(Tessellation). They are not under Universal Render Pipeline nor HDRP in menus.
+1. Create a new material and assign it to the mesh you plan to shade.
+2. In the Inspector, choose **Toon > Toon** or **Toon > Toon (Tessellation)** from the Shader drop-down. 
+   These shaders work on all supported render pipelines: Built-in Render Pipeline, URP, and HDRP.
+3. Once assigned, the model will render as a flat silhouette until 
+   you provide the texture maps that define the cel-shaded look.
 
 ![The same character model with the Toon shader selected in the Inspector window. The model is now a flat white silhouette.](images/AppliedUTS.png)
 
-You see the directional light isn't affecting like usual shading. This is because UTS controls the response of the lighting according to the artist's intentions. UTS allows detailed control whether the directional light color effects on materials. Please refer to [Scene Light Effectiveness Settings](SceneLight.md). But, while learning this section, setting the light color to **white** is recommendable. 
+The directional light will no longer control shading in the usual way because UTS overrides the lighting response according to artist-driven parameters. UTS also allows you to decide whether and how the directional light color influences materials. See [Scene Light Effectiveness Settings](SceneLight.md) for guidance.
 
 ## Setting up three basic colors
 
-The most basic function of the UTS is to render the mesh in three regions. **Base Map** for regions with no shadows, **1st shading map** for regions with shaded lighter , and **2nd shading map** for regions with shaded darker. [Three Color Map and Control Map Settings](Basic.md) provide the properties to control this fundamental settings. For basic cel-shading, two maps, **Base Map** and **1st Shading Map** work fine.
+UTS renders meshes in three conceptual regions: 
+1. **Base Map** for lit areas
+2. **1st Shading Map** for lighter shadows, and
+3. **2nd Shading Map** for the darkest tones. 
 
-![The same character model with the same shader selected. The Base Map property and the 1st Shading Map properties in the Inspector window are set to UV texture maps that have the shapes and colors for the model. The character is now fully textured.](images/AppliedTextures.png) 
+For basic cel-shading you can focus on the Base Map and 1st Shading Map. 
+The [Three Color Map and Control Map Settings](Basic.md) page explains the controls in depth.
 
-Applying the Base Map and 1st Shading Map to the material. The difference between the two texture is the color tone. In this sample, applied two different textures. But, applying one texture and differ colors to apply is also possible.
+![The same character model with the same shader selected. The Base Map property and the 1st Shading Map properties in the Inspector window are set to UV texture maps that have the shapes and colors for the model. The character is now fully textured.](images/AppliedTextures.png)
 
-![A UV map texture that contains all the parts of a chibi-style model](images/utc_all2_light.png)<br/>
-An example Base Map.
+Follow these steps:
+1. Author or import textures for the Base Map and 1st Shading Map. They can be separate textures or the same texture colored differently.
+2. Assign the Base Map to define the fully lit colors.
+3. Assign the 1st Shading Map to introduce a darker tone that UTS will show based on your shading step settings.
 
-![The same UV map but some areas have a darker color.](images/utc_all2_dark.png)</br>
-An example 1st Shading Map.
 
-## Adjusting edge of three basic color region
+![UV map textures of a chibi-style model for lit and lighter shadows areas](images/UnityChanTextures.png)<br/>
+Left: an example Base Map. Right: an example 1st Shading Map.
 
-Touch of the image is one of the most important factors that determine the style of the work. [Shading Steps and Feather Settings](ShadingStepAndFeather.md) provides  ways to adjust the position of the border between the regions and whether they're clearly separated or blended. First, you should adjust  **Base Color Step** to make  **1st Shading Map**, darker texture above, displayed.
 
-![The same character model. In the Inspector window of the Toon shader, the Base Color Step property is set to 0.609. The shadows on the model are more prominent.](images/WithoutOutline.png) 
+## Adjusting the edges of the three basic color regions
 
-In the above, the boundary of **Base Map** and **1st Shading Map** is cleary separated. Try adjusting **Base Shading Feather** to see how to control the boundary clearness. Sometimes, blended borders are favorable.
+The borders between your color regions drive the perceived style of the character. 
+[Shading Steps and Feather Settings](ShadingStepAndFeather.md) let you adjust the position of those borders 
+and whether they are sharp or blended.
 
-![The same character model. In the Inspector window of the Toon shader, the Base Shading Feather property is set to 0.279. The shadows on the model are more blended.](images/AdjustingFeather.png) 
+Follow these steps:
+1. Increase **Base Color Step** so the **1st Shading Map** becomes visible and the contrast between lit and shadowed regions matches your intent.
+2. Use **Base Shading Feather** to control how crisply the regions transition. Lower values create graphic, posterized shading, while higher values blend the regions.
 
-## Set outline
-The Outline is another important factor that determines the animation touch. The color of the border should be close to the background or clearly distinguishable, and its thickness affects the style of the animation. [Outline Settings](Outline.md) provides the properties to control them.
+![The same character model. In the Inspector window of the Toon shader, the Base Color Step property is set to 0.609. The shadows on the model are more prominent.](images/WithoutOutline.png)
+
+![The same character model. In the Inspector window of the Toon shader, the Base Shading Feather property is set to 0.279. The shadows on the model are more blended.](images/AdjustingFeather.png)
+
+## Set up the outline
+
+Outline is another important factor that determines the animation style.
+Consider the outline color relative to your background and adjust the thickness to reinforce the style. 
+The [Outline Settings](Outline.md) page details every property.
 
 <canvas class="image-comparison" role="img" aria-label="The same character model. In the Inspector window of the Toon shader, the Outline Color property is set to gray, and the Outline Width property is set to 4, then 6.44.">
     <img src="images/ThinOutline2.png" title="Outline Width: 4">
@@ -66,27 +87,29 @@ The Outline is another important factor that determines the animation touch. The
 <br />Drag the slider to compare the images.
 
 ## Advanced techniques
-Now, you  learned basic cel-sheding. But, professional cel-shading often requires more treatments. You will learn a couple of techniques in this section.
+
+Now that you've learned basic cel-shading, you can refine specific features of the character. 
+The following examples illustrate how UTS helps solve common cel-shading challenges.
 
 ### Eliminating outlines around eyes
-Look at the character's face above again. You will notice outlines around characters' eyes spoiling the images. UTS provides  [Outline Width Map](Outline.md#outline-width-map) to solve this. By applying that map, you can control the thickness of outlines around every part of the meshes to your satisfaction.
+
+Outlines around delicate facial features can be distracting. 
+Apply an [Outline Width Map](Outline.md#outline-width-map) to control outline thickness per texel so you can taper or remove the stroke where needed.
 
 ![The same character model. In the Inspector window of the Toon shader, the Outline Width Map property is set to a texture. There's no longer an outline around the eyes of the character.](images/OutlineWidthMap3.png)
 
-
 ### Adding luster to hair
-You might still see the image  appear flat and lacking in three-dimensionality.
-[Highlight](Highlight.md) on hair is common expression in anime production. 
-[Angel Ring](AngelRing.md) and [Material Capture(MatCap)](MatCap.md) are more specialized for hair luster. This time, apply MatCap on the hair. Create another material, then set [MatCap map](MatCap.md#matcap-map) in it.
+
+Flat lighting can make hair feel lifeless. 
+Combine the [Highlight](Highlight.md), [Angel Ring](AngelRing.md), and [Material Capture (MatCap)](MatCap.md) features to add dimensionality. 
+In this example, we'll apply a [MatCap map](MatCap.md#matcap-map) onto the hair.
 
 ![The same character model. In the Inspector window of the Toon shader, the MatCap Map property is set to a texture. The shadows and outlines on the hair look more three-dimensional.](images/Luster3.png)
 
-
-
 ## More options for stunning professional cel-shading
-The following factors are also essential in nowadays animation/game production when using cel-shading. Please try these out after mastering this page.
 
-* [Emission](Emission.md)
-* [Normal Map](NormalMap.md)
-* [Rim Light](Rimlight.md)
+Once you're comfortable with the steps above, experiment with these additional features to push the look even further:
 
+- [Emission](Emission.md) for glowing elements such as eyes, screens, or weapons.
+- [Normal Map](NormalMap.md) to control the bumpiness of the material.
+- [Rim Light](Rimlight.md) to highlight the edges of meshes.

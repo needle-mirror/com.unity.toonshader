@@ -1,17 +1,17 @@
-﻿//Unity Toon Shader
-//nobuyuki@unity3d.com
-//toshiyuki@unity3d.com (Intengrated) 
+//Auto-generated on Wed Dec 03 07:49:17 UTC 2025
+Shader "Toon/Toon" {
+    Properties
+    {
+        // Common Properties for Unity Toon Shader
+        // This file contains all shared properties between UnityToon.shader and UnityToonTessellation.shader
+        // with comments preserved from the original files
 
-Shader "Toon" {
-    Properties {
+        // Basic UI and Version Properties
         [HideInInspector] _simpleUI ("SimpleUI", Int ) = 0
-        [HideInInspector][Enum(OFF, 0, ON, 1)] _isUnityToonshader("Material is touched by Unity Toon Shader", Int) = 1
-        [HideInInspector] _utsVersionX("VersionX", Float) = 0
-        [HideInInspector] _utsVersionY("VersionY", Float) = 11
-        [HideInInspector] _utsVersionZ("VersionZ", Float) = 0
         [HideInInspector] _utsTechnique ("Technique", int ) = 0 //DWF
         _AutoRenderQueue("Automatic Render Queue ", int) = 1
 
+        // Stencil Properties
         [Enum(OFF, 0, StencilOut, 1, StencilMask, 2)] _StencilMode("StencilMode", int) = 0
         // these are set in UniversalToonGUI.cs in accordance with _StencilMode
         _StencilComp("Stencil Comparison", Float) = 8
@@ -20,21 +20,23 @@ Shader "Toon" {
         _StencilOpFail("Stencil Operation", Float) = 0
         [Enum(OFF, 0, ON, 1,] _TransparentEnabled("Transparent Mode", int) = 0
 
+        // Clipping Properties
         // DoubleShadeWithFeather
         // 0:_IS_CLIPPING_OFF      1:_IS_CLIPPING_MODE    2:_IS_CLIPPING_TRANSMODE
         // ShadingGradeMap
         // 0:_IS_TRANSCLIPPING_OFF 1:_IS_TRANSCLIPPING_ON
         [Enum(OFF, 0, ON, 1, TRANSMODE, 2)] _ClippingMode("CliippingMode", int) = 0
 
- 
+        // Cull and ZWrite Properties
         [Enum(OFF, 0, FRONT, 1, BACK, 2)] _CullMode("Cull Mode", int) = 2  //OFF/FRONT/BACK
-        [Enum(OFF, 0, ONT, 1)]	_ZWriteMode("ZWrite Mode", int) = 1  //OFF/ON
-        [Enum(OFF, 0, ONT, 1)]	_ZOverDrawMode("ZOver Draw Mode", Float) = 0  //OFF/ON
+        [Enum(OFF, 0, ONT, 1)]    _ZWriteMode("ZWrite Mode", int) = 1  //OFF/ON
+        [Enum(OFF, 0, ONT, 1)]    _ZOverDrawMode("ZOver Draw Mode", Float) = 0  //OFF/ON
         _SPRDefaultUnlitColorMask("SPRDefaultUnlit Path Color Mask", int) = 15
         [Enum(OFF, 0, FRONT, 1, BACK, 2)] _SRPDefaultUnlitColMode("SPRDefaultUnlit  Cull Mode", int) = 1  //OFF/FRONT/BACK
+
+        // ClippingMask parameters
         // ClippingMask paramaters from Here.
         _ClippingMask("ClippingMask", 2D) = "white" {}
-
         _IsBaseMapAlphaAsClippingMask("IsBaseMapAlphaAsClippingMask", Float) = 0
         //
         [Toggle(_)] _Inverse_Clipping("Inverse_Clipping", Float) = 0
@@ -42,38 +44,39 @@ Shader "Toon" {
         _Tweak_transparency("Tweak_transparency", Range(-1, 1)) = 0
         // ClippingMask paramaters to Here.
 
-
-        [Enum(OFF,0,FRONT,1,BACK,2)] _CullMode("Cull Mode", int) = 2  //OFF/FRONT/BACK
-
-
-
-
-
-
+        // Base Color Properties
         _MainTex ("BaseMap", 2D) = "white" {}
         _BaseMap ("BaseMap", 2D) = "white" {}
         _BaseColor ("BaseColor", Color) = (1,1,1,1)
         //v.2.0.5 : Clipping/TransClipping for SSAO Problems in PostProcessing Stack.
         //If you want to go back the former SSAO results, comment out the below line.
-        _Color ("Color", Color) = (1,1,1,1)
+        _Color("Color", Color) = (1,1,1,1)
         //
         [Toggle(_)] _Is_LightColor_Base ("Is_LightColor_Base", Float ) = 1
+
+        // 1st Shade Properties
         _1st_ShadeMap ("1st_ShadeMap", 2D) = "white" {}
         //v.2.0.5
         [Toggle(_)] _Use_BaseAs1st ("Use BaseMap as 1st_ShadeMap", Float ) = 0
         _1st_ShadeColor ("1st_ShadeColor", Color) = (1,1,1,1)
         [Toggle(_)] _Is_LightColor_1st_Shade ("Is_LightColor_1st_Shade", Float ) = 1
+
+        // 2nd Shade Properties
         _2nd_ShadeMap ("2nd_ShadeMap", 2D) = "white" {}
         //v.2.0.5
         [Toggle(_)] _Use_1stAs2nd ("Use 1st_ShadeMap as 2nd_ShadeMap", Float ) = 0
         _2nd_ShadeColor ("2nd_ShadeColor", Color) = (1,1,1,1)
         [Toggle(_)] _Is_LightColor_2nd_Shade ("Is_LightColor_2nd_Shade", Float ) = 1
+
+        // Normal Map Properties
         _NormalMap ("NormalMap", 2D) = "bump" {}
         _BumpScale ("Normal Scale", Range(0, 1)) = 1
         [Toggle(_)] _Is_NormalMapToBase ("Is_NormalMapToBase", Float ) = 0
         //v.2.0.4.4
         [Toggle(_)] _Set_SystemShadowsToBase ("Set_SystemShadowsToBase", Float ) = 1
         _Tweak_SystemShadowsLevel ("Tweak_SystemShadowsLevel", Range(-0.5, 0.5)) = 0
+
+        // Shading Properties
         //v.2.0.6
         _BaseColor_Step ("BaseColor_Step", Range(0, 1)) = 0.5
         _BaseShade_Feather ("Base/Shade_Feather", Range(0.0001, 1)) = 0.0001
@@ -86,16 +89,18 @@ Shader "Toon" {
         //v.2.0.5
         _StepOffset ("Step_Offset (ForwardAdd Only)", Range(-0.5, 0.5)) = 0
         [Toggle(_)] _Is_Filter_HiCutPointLightColor ("PointLights HiCut_Filter (ForwardAdd Only)", Float ) = 1
-        //
+
+        // Shading Grade Map Properties
         _Set_1st_ShadePosition ("Set_1st_ShadePosition", 2D) = "white" {}
         _Set_2nd_ShadePosition ("Set_2nd_ShadePosition", 2D) = "white" {}
         _ShadingGradeMap("ShadingGradeMap", 2D) = "white" {}
         //v.2.0.6
         _Tweak_ShadingGradeMapLevel("Tweak_ShadingGradeMapLevel", Range(-0.5, 0.5)) = 0
         _BlurLevelSGM("Blur Level of ShadingGradeMap", Range(0, 10)) = 0
-        //
+
+        // High Color Properties
         _HighColor ("HighColor", Color) = (0,0,0,1)
-//v.2.0.4 HighColor_Tex
+        //v.2.0.4 HighColor_Tex
         _HighColor_Tex ("HighColor_Tex", 2D) = "white" {}
         [Toggle(_)] _Is_LightColor_HighColor ("Is_LightColor_HighColor", Float ) = 1
         [Toggle(_)] _Is_NormalMapToHighColor ("Is_NormalMapToHighColor", Float ) = 0
@@ -104,9 +109,11 @@ Shader "Toon" {
         [Toggle(_)] _Is_BlendAddToHiColor ("Is_BlendAddToHiColor", Float ) = 0
         [Toggle(_)] _Is_UseTweakHighColorOnShadow ("Is_UseTweakHighColorOnShadow", Float ) = 0
         _TweakHighColorOnShadow ("TweakHighColorOnShadow", Range(0, 1)) = 0
-//HiColorMask
+        //HiColorMask
         _Set_HighColorMask ("Set_HighColorMask", 2D) = "white" {}
         _Tweak_HighColorMaskLevel ("Tweak_HighColorMaskLevel", Range(-1, 1)) = 0
+
+        // Rim Light Properties
         [Toggle(_)] _RimLight ("RimLight", Float ) = 0
         _RimLightColor ("RimLightColor", Color) = (1,1,1,1)
         [Toggle(_)] _Is_LightColor_RimLight ("Is_LightColor_RimLight", Float ) = 1
@@ -114,7 +121,7 @@ Shader "Toon" {
         _RimLight_Power ("RimLight_Power", Range(0, 1)) = 0.1
         _RimLight_InsideMask ("RimLight_InsideMask", Range(0.0001, 1)) = 0.0001
         [Toggle(_)] _RimLight_FeatherOff ("RimLight_FeatherOff", Float ) = 0
-//RimLight
+        //RimLight
         [Toggle(_)] _LightDirection_MaskOn ("LightDirection_MaskOn", Float ) = 0
         _Tweak_LightDirection_MaskLevel ("Tweak_LightDirection_MaskLevel", Range(0, 0.5)) = 0
         [Toggle(_)] _Add_Antipodean_RimLight ("Add_Antipodean_RimLight", Float ) = 0
@@ -122,10 +129,11 @@ Shader "Toon" {
         [Toggle(_)] _Is_LightColor_Ap_RimLight ("Is_LightColor_Ap_RimLight", Float ) = 1
         _Ap_RimLight_Power ("Ap_RimLight_Power", Range(0, 1)) = 0.1
         [Toggle(_)] _Ap_RimLight_FeatherOff ("Ap_RimLight_FeatherOff", Float ) = 0
-//RimLightMask
+        //RimLightMask
         _Set_RimLightMask ("Set_RimLightMask", 2D) = "white" {}
         _Tweak_RimLightMaskLevel ("Tweak_RimLightMaskLevel", Range(-1, 1)) = 0
-//
+
+        // MatCap Properties
         [Toggle(_)] _MatCap ("MatCap", Float ) = 0
         _MatCap_Sampler ("MatCap_Sampler", 2D) = "black" {}
         //v.2.0.6
@@ -143,12 +151,14 @@ Shader "Toon" {
         _Rotate_NormalMapForMatCapUV ("Rotate_NormalMapForMatCapUV", Range(-1, 1)) = 0
         [Toggle(_)] _Is_UseTweakMatCapOnShadow ("Is_UseTweakMatCapOnShadow", Float ) = 0
         _TweakMatCapOnShadow ("TweakMatCapOnShadow", Range(0, 1)) = 0
-//MatcapMask
+        //MatcapMask
         _Set_MatcapMask ("Set_MatcapMask", 2D) = "white" {}
         _Tweak_MatcapMaskLevel ("Tweak_MatcapMaskLevel", Range(-1, 1)) = 0
         [Toggle(_)] _Inverse_MatcapMask ("Inverse_MatcapMask", Float ) = 0
         //v.2.0.5
         [Toggle(_)] _Is_Ortho ("Orthographic Projection for MatCap", Float ) = 0
+
+        // Angel Rings Properties
         //// Angel Rings
         [Toggle(_)] _AngelRing("AngelRing", Float) = 0
         _AngelRing_Sampler("AngelRing_Sampler", 2D) = "black" {}
@@ -157,7 +167,8 @@ Shader "Toon" {
         _AR_OffsetU("AR_OffsetU", Range(0, 0.5)) = 0
         _AR_OffsetV("AR_OffsetV", Range(0, 1)) = 0.3
         [Toggle(_)] _ARSampler_AlphaOn("ARSampler_AlphaOn", Float) = 0
-        //
+
+        // Emissive Properties
         //v.2.0.7 Emissive
         [KeywordEnum(SIMPLE,ANIMATION)] _EMISSIVE("EMISSIVE MODE", Float) = 0
         _Emissive_Tex ("Emissive_Tex", 2D) = "white" {}
@@ -173,8 +184,9 @@ Shader "Toon" {
         [Toggle(_)] _Is_ViewShift ("Activate ViewShift", Float ) = 0
         [HDR]_ViewShift ("ViewSift", Color) = (0,0,0,1)
         [Toggle(_)] _Is_ViewCoord_Scroll ("Is_ViewCoord_Scroll", Float ) = 0
-        //
-//Outline
+
+        // Outline Properties
+        //Outline
         [KeywordEnum(NML,POS)] _OUTLINE("OUTLINE MODE", Float) = 0
         _Outline_Width ("Outline_Width", Float ) = 0
         _Farthest_Distance ("Farthest_Distance", Float ) = 100
@@ -195,7 +207,7 @@ Shader "Toon" {
         _GI_Intensity ("GI_Intensity", Range(0, 1)) = 0
         //For VR Chat under No effective light objects
         _Unlit_Intensity ("Unlit_Intensity", Range(0, 4)) = 0
-        //v.2.0.5 
+        //v.2.0.5
         [Toggle(_)] _Is_Filter_LightColor ("VRChat : SceneLights HiCut_Filter", Float ) = 1
         //Built-in Light Direction
         [Toggle(_)] _Is_BLD ("Advanced : Activate Built-in Light Direction", Float ) = 0
@@ -203,9 +215,10 @@ Shader "Toon" {
         _Offset_Y_Axis_BLD (" Offset Y-Axis (Built-in Light Direction)", Range(-1, 1)) = 0.09
         [Toggle(_)] _Inverse_Z_Axis_BLD (" Inverse Z-Axis (Built-in Light Direction)", Float ) = 1
 
-	//////////////////////////////////////////////////////////////////////////////
-	////////////////// Beginning of HDRP Matte. //////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////////
+        // HDRP Matte Properties
+        //////////////////////////////////////////////////////////////////////////////
+        ////////////////// Beginning of HDRP Matte. //////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////
         [Toggle(_)] _BaseColorVisible("Channel mask", Float) = 1
         [Toggle(_)] _BaseColorOverridden("Channel mask", Float) = 0
         _BaseColorMaskColor("chennel mask color", Color) = (1, 1, 1, 1)
@@ -237,20 +250,20 @@ Shader "Toon" {
         [Toggle(_)] _ComposerMaskMode("", Float) = 0
         [Enum(None, 0, BaseColor, 1, FirstShade, 2, SecondShade,3, Highlight, 4, AngelRing, 5, RimLight, 6)] _ClippingMatteMode("Clipping Matte Mode", int) = 0
 
+        //////////////////////////////////////////////////////////////////////////////
+        ////////////////// End of HDRP Matte.       //////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////
 
-	//////////////////////////////////////////////////////////////////////////////
-	////////////////// End of HDRP Matte.       //////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////////
-
-	////////////////// Avoid HDRP srp batcher error ///////////////////////////////
+        // Avoid HDRP srp batcher error
+        ////////////////// Avoid HDRP srp batcher error ///////////////////////////////
         [HideInInspector] emissive("to avoid srp batcher error", Color)= (0, 0, 0, 1) //
-	////////////////// Avoid HDRP srp batcher error ///////////////////////////////
+        ////////////////// Avoid HDRP srp batcher error ///////////////////////////////
 
-
-	//////////////////////////////////////////////////////////////////////////////
-	////////////////// Beginning of HDRP material default values. ////////////////
-	//////////////////////////////////////////////////////////////////////////////
-	_BaseColorMap("BaseColorMap", 2D) = "white" {}
+        // HDRP material default values
+        //////////////////////////////////////////////////////////////////////////////
+        ////////////////// Beginning of HDRP material default values. ////////////////
+        //////////////////////////////////////////////////////////////////////////////
+        _BaseColorMap("BaseColorMap", 2D) = "white" {}
         [HideInInspector] _BaseColorMap_MipInfo("_BaseColorMap_MipInfo", Vector) = (0, 0, 0, 0)
 
         _Metallic("_Metallic", Range(0.0, 1.0)) = 0
@@ -263,13 +276,15 @@ Shader "Toon" {
         _AORemapMin("AORemapMin", Float) = 0.0
         _AORemapMax("AORemapMax", Float) = 1.0
 
-        ////////////////  _NormalMap("NormalMap", 2D) = "bump" {}     // Tangent space normal map
+        // Normal Maps
+        //////////////  _NormalMap("NormalMap", 2D) = "bump" {}     // Tangent space normal map
         _NormalMapOS("NormalMapOS", 2D) = "white" {} // Object space normal map - no good default value
         _NormalScale("_NormalScale", Range(0.0, 8.0)) = 1
 
         _BentNormalMap("_BentNormalMap", 2D) = "bump" {}
         _BentNormalMapOS("_BentNormalMapOS", 2D) = "white" {}
 
+        // Height Maps
         _HeightMap("HeightMap", 2D) = "black" {}
         // Caution: Default value of _HeightAmplitude must be (_HeightMax - _HeightMin) * 0.01
         // Those two properties are computed from the ones exposed in the UI and depends on the displaement mode so they are separate because we don't want to lose information upon displacement mode change.
@@ -289,16 +304,19 @@ Shader "Toon" {
         // These parameters are for pixel displacement
         _HeightPoMAmplitude("Height Amplitude", Float) = 2.0 // In centimeters
 
+        // Detail Maps
         _DetailMap("DetailMap", 2D) = "linearGrey" {}
         _DetailAlbedoScale("_DetailAlbedoScale", Range(0.0, 2.0)) = 1
         _DetailNormalScale("_DetailNormalScale", Range(0.0, 2.0)) = 1
         _DetailSmoothnessScale("_DetailSmoothnessScale", Range(0.0, 2.0)) = 1
 
+        // Tangent Maps
         _TangentMap("TangentMap", 2D) = "bump" {}
         _TangentMapOS("TangentMapOS", 2D) = "white" {}
         _Anisotropy("Anisotropy", Range(-1.0, 1.0)) = 0
         _AnisotropyMap("AnisotropyMap", 2D) = "white" {}
 
+        // Diffusion Profile
         [HideInInspector] _DiffusionProfile("Obsolete, kept for migration purpose", Int) = 0
         [HideInInspector] _DiffusionProfileAsset("Diffusion Profile Asset", Vector) = (0, 0, 0, 0)
         [HideInInspector] _DiffusionProfileHash("Diffusion Profile Hash", Float) = 0
@@ -309,15 +327,18 @@ Shader "Toon" {
         _ThicknessMap("Thickness Map", 2D) = "white" {}
         _ThicknessRemap("Thickness Remap", Vector) = (0, 1, 0, 0)
 
+        // Iridescence
         _IridescenceThickness("Iridescence Thickness", Range(0.0, 1.0)) = 1.0
         _IridescenceThicknessMap("Iridescence Thickness Map", 2D) = "white" {}
         _IridescenceThicknessRemap("Iridescence Thickness Remap", Vector) = (0, 1, 0, 0)
         _IridescenceMask("Iridescence Mask", Range(0.0, 1.0)) = 1.0
         _IridescenceMaskMap("Iridescence Mask Map", 2D) = "white" {}
 
+        // Coat
         _CoatMask("Coat Mask", Range(0.0, 1.0)) = 0.0
         _CoatMaskMap("CoatMaskMap", 2D) = "white" {}
 
+        // Specular
         [ToggleUI] _EnergyConservingSpecularColor("_EnergyConservingSpecularColor", Float) = 1.0
         _SpecularColor("SpecularColor", Color) = (1, 1, 1, 1)
         _SpecularColorMap("SpecularColorMap", 2D) = "white" {}
@@ -326,6 +347,7 @@ Shader "Toon" {
         // These option below will cause different compilation flag.
         [Enum(Off, 0, From Ambient Occlusion, 1, From Bent Normals, 2)]  _SpecularOcclusionMode("Specular Occlusion Mode", Int) = 1
 
+        // Emissive
         [HDR] _EmissiveColor("EmissiveColor", Color) = (0, 0, 0)
         // Used only to serialize the LDR and HDR emissive color in the material UI,
         // in the shader only the _EmissiveColor should be used
@@ -337,6 +359,7 @@ Shader "Toon" {
         _EmissiveIntensity("Emissive Intensity", Float) = 1
         _EmissiveExposureWeight("Emissive Pre Exposure", Range(0.0, 1.0)) = 1.0
 
+        // Distortion
         _DistortionVectorMap("DistortionVectorMap", 2D) = "black" {}
         [ToggleUI] _DistortionEnable("Enable Distortion", Float) = 0.0
         [ToggleUI] _DistortionDepthTest("Distortion Depth Test Enable", Float) = 1.0
@@ -353,6 +376,7 @@ Shader "Toon" {
         _DistortionBlurRemapMin("DistortionBlurRemapMin", Float) = 0.0
         _DistortionBlurRemapMax("DistortionBlurRemapMax", Float) = 1.0
 
+        // Alpha and Transparency
         [ToggleUI]  _UseShadowThreshold("_UseShadowThreshold", Float) = 0.0
         [ToggleUI]  _AlphaCutoffEnable("Alpha Cutoff Enable", Float) = 0.0
         _AlphaCutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
@@ -375,7 +399,6 @@ Shader "Toon" {
         [ToggleUI] _TransparentWritingMotionVec("_TransparentWritingMotionVec", Float) = 0.0
 
         // Stencil state
-
         // Forward
         [HideInInspector] _StencilRef("_StencilRef", Int) = 2 // StencilLightingUsage.RegularLighting
         [HideInInspector] _StencilWriteMask("_StencilWriteMask", Int) = 3 // StencilMask.Lighting
@@ -401,7 +424,6 @@ Shader "Toon" {
         [HideInInspector] _AlphaDstBlend("__alphaDst", Float) = 0.0
         [HideInInspector][ToggleUI] _ZWrite("__zw", Float) = 1.0
         [HideInInspector][ToggleUI] _TransparentZWrite("_TransparentZWrite", Float) = 0.0
-        [HideInInspector] _CullMode("__cullmode", Float) = 2.0
         [HideInInspector] _CullModeForward("__cullmodeForward", Float) = 2.0 // This mode is dedicated to Forward to correctly handle backface then front face rendering thin transparent
         [HideInInspector] _TransparentCullMode("_TransparentCullMode", Int) = 2 // Back culling by default
         [HideInInspector] _ZTestDepthEqualForOpaque("_ZTestDepthEqualForOpaque", Int) = 4 // Less equal
@@ -427,12 +449,6 @@ Shader "Toon" {
         // so we use this enum as "material ID" which can be interpreted as preset of bitfield of material feature
         // The only material feature flag that can be added in all cases is clear coat
         [Enum(Subsurface Scattering, 0, Standard, 1, Anisotropy, 2, Iridescence, 3, Specular Color, 4, Translucent, 5)] _MaterialID("MaterialId", Int) = 1 // MaterialId.Standard
-        [ToggleUI] _TransmissionEnable("_TransmissionEnable", Float) = 1.0
-
-        [Enum(None, 0, Vertex displacement, 1, Pixel displacement, 2)] _DisplacementMode("DisplacementMode", Int) = 0
-        [ToggleUI] _DisplacementLockObjectScale("displacement lock object scale", Float) = 1.0
-        [ToggleUI] _DisplacementLockTilingScale("displacement lock tiling scale", Float) = 1.0
-        [ToggleUI] _DepthOffsetEnable("Depth Offset View space", Float) = 0.0
 
         [ToggleUI] _EnableGeometricSpecularAA("EnableGeometricSpecularAA", Float) = 0.0
         _SpecularAAScreenSpaceVariance("SpecularAAScreenSpaceVariance", Range(0.0, 1.0)) = 0.1
@@ -461,17 +477,19 @@ Shader "Toon" {
         _EmissionColor("Color", Color) = (1, 1, 1)
 
         // HACK: GI Baking system relies on some properties existing in the shader ("_MainTex", "_Cutoff" and "_Color") for opacity handling, so we need to store our version of those parameters in the hard-coded name the GI baking system recognizes.
-        //////////// _MainTex("BaseMap", 2D) = "white" {}
-        _Color("Color", Color) = (1,1,1,1)
+        ////////// _MainTex("BaseMap", 2D) = "white" {}
         _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
 
         [ToggleUI] _SupportDecals("Support Decals", Float) = 1.0
         [ToggleUI] _ReceivesSSR("Receives SSR", Float) = 1.0
         [ToggleUI] _AddPrecomputedVelocity("AddPrecomputedVelocity", Float) = 0.0
-	//////////////////////////////////////////////////////////////////////////////
-	//////////////////// End of HDRP material default values. ////////////////////
-	//////////////////////////////////////////////////////////////////////////////
-    } 
+        //////////////////////////////////////////////////////////////////////////////
+        //////////////////// End of HDRP material default values. ////////////////////
+        //////////////////////////////////////////////////////////////////////////////
+
+        [HideInInspector] _ToonMaterialVersion ("Toon Material Version", Integer ) = 0
+    }
+
 
     HLSLINCLUDE
 
@@ -567,7 +585,7 @@ Shader "Toon" {
         PackageRequirements
         {
            "com.unity.render-pipelines.high-definition": "10.5.0"
-        }    
+        }
         // This tags allow to use the shader replacement features
         Tags{ "RenderPipeline"="HDRenderPipeline" }
 
@@ -580,7 +598,7 @@ Shader "Toon" {
 
             HLSLPROGRAM
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
-            #pragma target 4.5	    
+            #pragma target 4.5
             #include "../../HDRP/Shaders/UtsHDRP.hlsl"
             // Note: Require _ObjectId and _PassValue variables
 
@@ -620,7 +638,7 @@ Shader "Toon" {
 
             HLSLPROGRAM
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
-            #pragma target 4.5	    
+            #pragma target 4.5
             #include "../../HDRP/Shaders/UtsHDRP.hlsl"
 
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
@@ -672,7 +690,7 @@ Shader "Toon" {
 
             HLSLPROGRAM
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
-            #pragma target 4.5	    
+            #pragma target 4.5
             #include "../../HDRP/Shaders/UtsHDRP.hlsl"
             // Lightmap memo
             // DYNAMICLIGHTMAP_ON is used when we have an "enlighten lightmap" ie a lightmap updated at runtime by enlighten.This lightmap contain indirect lighting from realtime lights and realtime emissive material.Offline baked lighting(from baked material / light,
@@ -706,7 +724,7 @@ Shader "Toon" {
 
             HLSLPROGRAM
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
-            #pragma target 4.5	    
+            #pragma target 4.5
             #include "../../HDRP/Shaders/UtsHDRP.hlsl"
 
             #define SHADERPASS SHADERPASS_SHADOWS
@@ -742,7 +760,7 @@ Shader "Toon" {
 
             HLSLPROGRAM
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
-            #pragma target 4.5	    
+            #pragma target 4.5
             #include "../../HDRP/Shaders/UtsHDRP.hlsl"
             // In deferred, depth only pass don't output anything.
             // In forward it output the normal buffer
@@ -788,7 +806,7 @@ Shader "Toon" {
 
             HLSLPROGRAM
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
-            #pragma target 4.5	    
+            #pragma target 4.5
             #include "../../HDRP/Shaders/UtsHDRP.hlsl"
             #pragma multi_compile _ WRITE_NORMAL_BUFFER
             #pragma multi_compile _ WRITE_MSAA_DEPTH
@@ -831,7 +849,7 @@ Shader "Toon" {
 
             HLSLPROGRAM
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
-            #pragma target 4.5	    
+            #pragma target 4.5
             #include "../../HDRP/Shaders/UtsHDRP.hlsl"
             #define SHADERPASS SHADERPASS_DISTORTION
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Material.hlsl"
@@ -857,7 +875,7 @@ Shader "Toon" {
 
             HLSLPROGRAM
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
-            #pragma target 4.5	    
+            #pragma target 4.5
             #include "../../HDRP/Shaders/UtsHDRP.hlsl"
             #define SHADERPASS SHADERPASS_DEPTH_ONLY
             #define CUTOFF_TRANSPARENT_DEPTH_PREPASS
@@ -887,7 +905,7 @@ Shader "Toon" {
 
             HLSLPROGRAM
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
-            #pragma target 4.5	    
+            #pragma target 4.5
             #include "../../HDRP/Shaders/UtsHDRP.hlsl"
             #pragma multi_compile _ DEBUG_DISPLAY
             #pragma multi_compile _ LIGHTMAP_ON
@@ -910,7 +928,7 @@ Shader "Toon" {
             #define DIRECTIONAL_SHADOW_MEDIUM
             #endif
             #endif
-            
+
             #ifdef SHADOW_HIGH
             #ifndef PUNCTUAL_SHADOW_HIGH
             #define PUNCTUAL_SHADOW_HIGH
@@ -919,7 +937,7 @@ Shader "Toon" {
             #define DIRECTIONAL_SHADOW_HIGH
             #endif
             #endif
-        #endif	
+        #endif
             #define USE_CLUSTERED_LIGHTLIST // There is not FPTL lighting when using transparent
             #define AREA_SHADOW_LOW
             #define SHADERPASS SHADERPASS_FORWARD
@@ -957,7 +975,7 @@ Shader "Toon" {
         {
 
             Name "ForwardOnly"
-            Tags { "LightMode" = "ForwardOnly" } 
+            Tags { "LightMode" = "ForwardOnly" }
 
             ZWrite[_ZWriteMode]
             Cull[_CullMode]
@@ -976,7 +994,7 @@ Shader "Toon" {
 
             HLSLPROGRAM
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
-            #pragma target 4.5	    
+            #pragma target 4.5
             #include "../../HDRP/Shaders/UtsHDRP.hlsl"
 //            #pragma multi_compile _ UTS_DEBUG_SHADOWMAP_BINALIZATION
             #pragma multi_compile _ DEBUG_DISPLAY
@@ -1001,7 +1019,7 @@ Shader "Toon" {
             #define DIRECTIONAL_SHADOW_MEDIUM
             #endif
             #endif
-            
+
             #ifdef SHADOW_HIGH
             #ifndef PUNCTUAL_SHADOW_HIGH
             #define PUNCTUAL_SHADOW_HIGH
@@ -1010,9 +1028,9 @@ Shader "Toon" {
             #define DIRECTIONAL_SHADOW_HIGH
             #endif
             #endif
-        #endif	    
+        #endif
             #define LIGHTLOOP_DISABLE_TILE_AND_CLUSTER
-//	    #pragma multi_compile USE_FPTL_LIGHTLIST USE_CLUSTERED_LIGHTLIST
+//        #pragma multi_compile USE_FPTL_LIGHTLIST USE_CLUSTERED_LIGHTLIST
             #define AREA_SHADOW_LOW
             #define SHADERPASS SHADERPASS_FORWARD
             // In case of opaque we don't want to perform the alpha test, it is done in depth prepass and we use depth equal for ztest (setup from UI)
@@ -1024,8 +1042,6 @@ Shader "Toon" {
             // used in ShadingGradeMap
             #pragma shader_feature _IS_TRANSCLIPPING_OFF _IS_TRANSCLIPPING_ON
             #pragma shader_feature _IS_ANGELRING_OFF _IS_ANGELRING_ON
-            // used in Shadow calculation 
-            #pragma shader_feature_local _ UTS_USE_RAYTRACING_SHADOW
             // used in DoubleShadeWithFeather
             #pragma shader_feature _IS_CLIPPING_OFF _IS_CLIPPING_MODE _IS_CLIPPING_TRANSMODE
             // controlling mask rendering
@@ -1076,7 +1092,7 @@ Shader "Toon" {
 
             HLSLPROGRAM
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
-            #pragma target 4.5	    
+            #pragma target 4.5
             #include "../../HDRP/Shaders/UtsHDRP.hlsl"
             #define SHADERPASS SHADERPASS_DEPTH_ONLY
             #define CUTOFF_TRANSPARENT_DEPTH_POSTPASS
@@ -1114,7 +1130,7 @@ Shader "Toon" {
 
             HLSLPROGRAM
             #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
-            #pragma target 4.5	    
+            #pragma target 4.5
             #include "../../HDRP/Shaders/UtsHDRP.hlsl"
             #define AREA_SHADOW_LOW
             #define SHADERPASS SHADERPASS_FORWARD
@@ -1168,12 +1184,12 @@ Shader "Toon" {
     // *************************** //
     // ****** URP Subshader  ***** //
     // *************************** //
-    SubShader 
+    SubShader
     {
         PackageRequirements
         {
              "com.unity.render-pipelines.universal": "10.5.0"
-        }    
+        }
         Tags {
             "RenderType"="Opaque"
             "RenderPipeline" = "UniversalPipeline"
@@ -1267,7 +1283,7 @@ Shader "Toon" {
         #endif
 
             #define _IS_PASS_FWDBASE
-            // DoubleShadeWithFeather and ShadingGradeMap use different fragment shader.  
+            // DoubleShadeWithFeather and ShadingGradeMap use different fragment shader.
             #pragma shader_feature_local _ _SHADINGGRADEMAP
 
 
@@ -1275,8 +1291,6 @@ Shader "Toon" {
             #pragma shader_feature _IS_TRANSCLIPPING_OFF _IS_TRANSCLIPPING_ON
             #pragma shader_feature _IS_ANGELRING_OFF _IS_ANGELRING_ON
 
-            // used in Shadow calculation 
-            #pragma shader_feature_local _ UTS_USE_RAYTRACING_SHADOW
             // used in DoubleShadeWithFeather
             #pragma shader_feature _IS_CLIPPING_OFF _IS_CLIPPING_MODE _IS_CLIPPING_TRANSMODE
 
@@ -1290,7 +1304,7 @@ Shader "Toon" {
             #include "../../UniversalRP/Shaders/UniversalToonBody.hlsl"
 #endif
             ENDHLSL
-            
+
         }
 
         Pass {
@@ -1371,7 +1385,7 @@ Shader "Toon" {
 
             // -------------------------------------
             // Includes
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
+            #include "../../UniversalRP/Shaders/UniversalToonInput.hlsl"
             #include "../../UniversalRP/Shaders/UniversalBasic2D.hlsl"
             ENDHLSL
         }
@@ -1388,7 +1402,7 @@ Shader "Toon" {
 
             HLSLPROGRAM
             #pragma target 2.0
-	    
+
             // Required to compile gles 2.0 with standard srp library
             #pragma prefer_hlslcc gles
             #pragma exclude_renderers d3d11_9x
@@ -1423,7 +1437,7 @@ Shader "Toon" {
 
             HLSLPROGRAM
             #pragma target 2.0
-	    
+
             // Required to compile gles 2.0 with standard srp library
             #pragma prefer_hlslcc gles
             #pragma exclude_renderers d3d11_9x
@@ -1459,7 +1473,7 @@ Shader "Toon" {
             Cull[_Cull]
 
             HLSLPROGRAM
-            #pragma target 2.0	    
+            #pragma target 2.0
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Version.hlsl"
 
 
@@ -1532,29 +1546,10 @@ Shader "Toon" {
             #pragma only_renderers d3d9 d3d11 glcore gles gles3 playstation xboxone xboxseries vulkan metal switch
 
             #pragma target 3.0
-            // DoubleShadeWithFeather and ShadingGradeMap use different fragment shader.  
-            #pragma shader_feature_local _ _SHADINGGRADEMAP
-            // used in ShadingGradeMap
-            #pragma shader_feature _IS_TRANSCLIPPING_OFF _IS_TRANSCLIPPING_ON
-            #pragma shader_feature _IS_ANGELRING_OFF _IS_ANGELRING_ON
-            // used in DoubleShadeWithFeather
-            #pragma shader_feature _IS_CLIPPING_OFF _IS_CLIPPING_MODE _IS_CLIPPING_TRANSMODE
-            #pragma shader_feature _EMISSIVE_SIMPLE _EMISSIVE_ANIMATION
-            #pragma multi_compile _IS_PASS_FWDBASE
+            #pragma multi_compile _IS_PASS_FWDBASE //[TODO-sin:2025-11-20] Check if this is used.
 
-            //
-            #pragma shader_feature_local UTS_USE_RAYTRACING_SHADOW
-#if defined(_SHADINGGRADEMAP)
-
-#include "../../Legacy/Shaders/UCTS_ShadingGradeMap.cginc"
-
-
-#else //#if defined(_SHADINGGRADEMAP)
-
-#include "../../Legacy/Shaders/UCTS_DoubleShadeWithFeather.cginc"
-
-
-#endif //#if defined(_SHADINGGRADEMAP)
+            #pragma shader_feature_local UTS_RP_BUILTIN
+            #include_with_pragmas  "../../Shaders/BuiltIn/BuiltInToonMode.hlsl"
 
             ENDCG
         }
@@ -1601,8 +1596,8 @@ Shader "Toon" {
 
             Blend One One
             Cull[_CullMode]
-            
-            
+
+
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
@@ -1616,30 +1611,11 @@ Shader "Toon" {
             #pragma only_renderers d3d9 d3d11 glcore gles gles3 playstation xboxone xboxseries vulkan metal switch
 
             #pragma target 3.0
-            // DoubleShadeWithFeather and ShadingGradeMap use different fragment shader.  
-            #pragma shader_feature_local _ _SHADINGGRADEMAP
-            // used in ShadingGradeMap
-            #pragma shader_feature _IS_TRANSCLIPPING_OFF _IS_TRANSCLIPPING_ON
-            #pragma shader_feature _IS_ANGELRING_OFF _IS_ANGELRING_ON
-            // used in DoubleShadeWithFeather
-            #pragma shader_feature _IS_CLIPPING_OFF _IS_CLIPPING_MODE _IS_CLIPPING_TRANSMODE
-            #pragma shader_feature _EMISSIVE_SIMPLE _EMISSIVE_ANIMATION
-            //v.2.0.4
 
-            #pragma multi_compile _IS_PASS_FWDDELTA
-            #pragma shader_feature_local UTS_USE_RAYTRACING_SHADOW
+            #pragma multi_compile _IS_PASS_FWDDELTA //[TODO-sin:2025-11-20] Check if this is used.
 
-#if defined(_SHADINGGRADEMAP)
-
-#include "../../Legacy/Shaders/UCTS_ShadingGradeMap.cginc"
-
-
-#else //#if defined(_SHADINGGRADEMAP)
-
-#include "../../Legacy/Shaders/UCTS_DoubleShadeWithFeather.cginc"
-
-
-#endif //#if defined(_SHADINGGRADEMAP)
+            #pragma shader_feature_local UTS_RP_BUILTIN
+            #include_with_pragmas  "../../Shaders/BuiltIn/BuiltInToonMode.hlsl"
 
             ENDCG
         }
@@ -1650,7 +1626,7 @@ Shader "Toon" {
             }
             Offset 1, 1
             Cull Off
-            
+
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag

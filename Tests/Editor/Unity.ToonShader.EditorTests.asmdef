@@ -1,8 +1,11 @@
 {
     "name": "Unity.Toonshader.EditorTests",
+    "rootNamespace": "",
     "references": [
         "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner"
+        "UnityEditor.TestRunner",
+        "Unity.Toonshader",
+        "Unity.FilmInternalUtilities.Editor"
     ],
     "includePlatforms": [
         "Editor"
@@ -17,5 +20,6 @@
     "defineConstraints": [
         "UNITY_INCLUDE_TESTS"
     ],
-    "versionDefines": []
+    "versionDefines": [],
+    "noEngineReferences": false
 }

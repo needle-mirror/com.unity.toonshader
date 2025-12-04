@@ -1,7 +1,8 @@
 # Highlight Settings
 
-The ability to display specular highlights in a cel-animation-like manner is essential for Toon Shaders. The **Unity Toon Shader** provides a wide variety of expressions with controllability to illuminate the area independently of light color and intensity for impressive cel-shading.
+The ability to display specular highlights in a cel-animation-like manner is essential for toon shaders. The **Unity Toon Shader** provides a wide variety of expressions with controllable illumination that works independently of light color and intensity for impressive cel-shading.
 
+Settings:
 * [Highlight](#highlight)
 * [Highlight Power](#highlight-power)
 * [Specular Mode](#specular-mode)
@@ -13,7 +14,9 @@ The ability to display specular highlights in a cel-animation-like manner is ess
 
 
 ## Highlight
-Highlight : Texture(sRGB) × Color(RGB) Default:White. Pattern and color of specularly illuminated area.
+Highlight: Texture(sRGB) × Color(RGB). Defines the pattern and tint of the specular highlight.
+
+Default: white.
 
 <canvas class="image-comparison" role="img" aria-label="A toon-shaded sphere in a room textured with graphs. The sphere has green and purple bands of color, and a bright white specular highlight. Then the same sphere, with the color picker window open and the color #FF0000 selected. The specular highlight on the sphere is now orange and yellow.">
     <img src="images/Highlight0.png" title="The default color.">
@@ -23,7 +26,9 @@ Highlight : Texture(sRGB) × Color(RGB) Default:White. Pattern and color of spec
 
 ## Highlight Power
 
-The size of the Highlight controlled through the High light power slider. The size increase with the formula: pow(x,5).
+The highlight size is controlled by the **Highlight Power** slider. 
+
+<video title="Tweaking the highlight power." src="images/SpecularPower.mp4" width="auto" height="auto" autoplay="true" loop="true" controls></video>
 
 
 ## Specular Mode
@@ -31,15 +36,18 @@ The size of the Highlight controlled through the High light power slider. The si
 UTS provides two modes for the highlight for different occasions and effect. The hard mode provides a crisp and solid edge to the highlight while the soft mode provides a blended blurred effect.
 
 <canvas class="image-comparison" role="img" aria-label="A close-up of a white specular highlight on a green sphere. The highlight is a clear white disc with a hard edge. Then the same close-up. The specular highlight is now a blurred white disc.">
-    <img src="Images/SpecularHard.png" title="Specular Mode set to Hard.">
-    <img src="Images/SpecularSoft.png" title="Specular Mode set to Soft.">
+    <img src="images/SpecularHard.png" title="Mode: Hard.">
+    <img src="images/SpecularSoft.png" title="Mode: Soft.">
 </canvas>
 <br />Drag the slider to compare the images.
 
 <br><br>
 
 ### Color Blending Mode
-Specular color blending mode allows the user to control the hardness of the colour applied to the highlight. Users have two options: Multiply or Add. Note that **Color Blending Mode** is disabled when **Specular** Mode is  **Soft**.
+Specular color blending mode allows the user to control the hardness of the colour applied to the highlight. 
+Users have two options: Multiply or Add.
+
+Note that **Color Blending Mode** is disabled when **Specular** Mode is set to **Soft**.
 
 <canvas class="image-comparison" role="img" aria-label="A close-up of a yellow specular highlight on a green sphere. The highlight is a clear yellow disc with a hard edge. Then the same close-up. The specular highlight is now a blurred yellow disc.">
     <img src="images/SpecularMultiply.png" title="Multiply">
