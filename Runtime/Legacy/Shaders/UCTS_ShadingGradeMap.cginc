@@ -15,10 +15,7 @@ struct VertexInput {
     float3 normal : NORMAL;
     float4 tangent : TANGENT;
     float2 texcoord0 : TEXCOORD0;
-//v.2.0.4
-#ifdef _IS_ANGELRING_OFF
-//
-#elif _IS_ANGELRING_ON
+#if defined(_IS_ANGELRING_ON)
     float2 texcoord1 : TEXCOORD1;
 #endif
     UNITY_VERTEX_INPUT_INSTANCE_ID //
@@ -27,29 +24,19 @@ struct VertexInput {
 struct VertexOutput {
     float4 pos : SV_POSITION;
     float2 uv0 : TEXCOORD0;
-//v.2.0.4
-#ifdef _IS_ANGELRING_OFF
-    float4 posWorld : TEXCOORD1;
-    float3 normalDir : TEXCOORD2;
-    float3 tangentDir : TEXCOORD3;
-    float3 bitangentDir : TEXCOORD4;
-    //v.2.0.7
-    float mirrorFlag : TEXCOORD5;
-    LIGHTING_COORDS(6,7)
-    UNITY_FOG_COORDS(8)
-    //
-#elif _IS_ANGELRING_ON
+
+#if _IS_ANGELRING_ON
     float2 uv1 : TEXCOORD1;
+#endif    
+
     float4 posWorld : TEXCOORD2;
     float3 normalDir : TEXCOORD3;
     float3 tangentDir : TEXCOORD4;
     float3 bitangentDir : TEXCOORD5;
-    //v.2.0.7
     float mirrorFlag : TEXCOORD6;
     LIGHTING_COORDS(7,8)
     UNITY_FOG_COORDS(9)
-    //
-#endif
+    
     UNITY_VERTEX_INPUT_INSTANCE_ID
     UNITY_VERTEX_OUTPUT_STEREO
 };
@@ -79,10 +66,8 @@ struct VertexOutput {
                 UNITY_TRANSFER_INSTANCE_ID(v, o);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
                 o.uv0 = v.texcoord0;
-//v.2.0.4
-#ifdef _IS_ANGELRING_OFF
-//
-#elif _IS_ANGELRING_ON
+                
+#if defined(_IS_ANGELRING_ON)
                 o.uv1 = v.texcoord1;
 #endif
                 o.normalDir = UnityObjectToWorldNormal(v.normal);
@@ -270,11 +255,8 @@ struct VertexOutput {
                 float _Tweak_MatcapMaskLevel_var_MultiplyMode = _Tweak_MatcapMaskLevel_var * lerp (1, (1 - (Set_FinalShadowMask)*(1 - _TweakMatCapOnShadow)), _Is_UseTweakMatCapOnShadow);
                 float3 matCapColorOnMultiplyMode = Set_HighColor*(1-_Tweak_MatcapMaskLevel_var_MultiplyMode) + Set_HighColor*Set_MatCap*_Tweak_MatcapMaskLevel_var_MultiplyMode + lerp(float3(0,0,0),Set_RimLight,_RimLight);
                 float3 matCapColorFinal = lerp(matCapColorOnMultiplyMode, matCapColorOnAddMode, _Is_BlendAddToMatCap);
-//v.2.0.4
-#ifdef _IS_ANGELRING_OFF
-                float3 finalColor = lerp(_RimLight_var, matCapColorFinal, _MatCap);// Final Composition before Emissive
-                //
-#elif _IS_ANGELRING_ON
+                
+#if defined(_IS_ANGELRING_ON)
                 float3 finalColor = lerp(_RimLight_var, matCapColorFinal, _MatCap);// Final Composition before AR
                 //v.2.0.7 AR Camera Rolling Stabilizer
                 float3 _AR_OffsetU_var = lerp(mul(UNITY_MATRIX_V, float4(i.normalDir,0)).xyz,float3(0,0,1),_AR_OffsetU);
@@ -288,8 +270,12 @@ struct VertexOutput {
                 float3 Set_AngelRingWithAlpha = (_Is_LightColor_AR_var*_AngelRing_Sampler_var.a);
                 //Composition: MatCap and AngelRing as finalColor
                 finalColor = lerp(finalColor, lerp((finalColor + Set_AngelRing), ((finalColor*(1.0 - Set_ARtexAlpha))+Set_AngelRingWithAlpha), _ARSampler_AlphaOn ), _AngelRing );// Final Composition before Emissive
+#else                
+                float3 finalColor = lerp(_RimLight_var, matCapColorFinal, _MatCap);// Final Composition before Emissive
+
 #endif
 //v.2.0.7
+                
 #ifdef _EMISSIVE_SIMPLE
                 float4 _Emissive_Tex_var = tex2D(_Emissive_Tex,TRANSFORM_TEX(Set_UV0, _Emissive_Tex));
                 float emissiveMask = _Emissive_Tex_var.a;

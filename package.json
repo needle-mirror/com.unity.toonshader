@@ -1,7 +1,7 @@
 {
   "name": "com.unity.toonshader",
   "displayName": "Unity Toon Shader",
-  "version": "0.13.0-preview",
+  "version": "0.13.1-preview",
   "unity": "6000.0",
   "description": "Unity Toon Shader (Unity-Chan Toon Shader 3) is a toon shader for images and video that is designed to meet the needs of creators working on cel-shaded 3DCG animations.\nUnlike other pre-render toon shaders, all features can be adjusted in real time on Unity, which is the greatest feature of UTS.\n\nUTS has great power and makes a wide variety of character designs possible, from cel-shaded to light novel illustration styles.\n\nUTS has the 3 basic layers of Base Color, 1st Shade Color, and 2nd Shade Color, colors and textures can also accept a wide variety of customization options, such as High Color, Rim Light, MatCap (sphere mapping), and Emissive (light emission).The level of gradation (feather) between colors can also be adjusted in Unity in real-time.\n\nMore precisely, View documentation above.",
   "dependencies": {
@@ -26,15 +26,15 @@
     }
   ],
   "_upm": {
-    "changelog": "## Added\n* feat: add Toon 3D as 2D shader\n* feat: assign material props when switching a material to Toon3Das2D\n* license: add explicit reference to the Unity-chan license\n* doc: add rendering paths section in the feature model doc\n\n## Changed\n* package: raise minimum Unity version requirement to 6.0\n* deps: use com.unity.film-internal-utilities@0.20.0-preview\n* sample: replace Unity-chan assets package-wide\n* sample: mention Unity-chan license inside sample description\n* sample: rename \"Sample\" scene to KageBall\n* sample: move UVCheckGrid texture into the common folder\n* sample: rename ToonShader scenes to UnityChan\n* sample: rename sample description and displayName strings\n* sample: update Built-in RP / URP / HDRP scenes\n* sample: disable CameraController while running tests\n* sample: reorganize floor materials grouping\n* sample: stop auto-generating materials for the Unity-chan model\n* doc: clean up Getting Started guide\n* doc: clean up Highlight documentation\n* doc: clean up Outline documentation\n* doc: clean up AngelRing documentation\n* doc: clean up Matcap documentation\n* doc: tidy the Samples documentation\n* doc: clean up Feature Difference documentation\n* doc: move MaterialConverter lower in the TOC\n* doc: put Render Pipeline Compatibility on the index page\n* doc: use \"With Additional Control Maps\" term in Modes page\n* doc: drop the word \"Settings\" from TOC entries\n* doc: lower Outline doc heading levels\n* doc: use emoji markers for feature availability\n* doc: improve grammar and clarity\n* doc: relocate HDRP box light entry under HDRP features\n\n## Fixed\n* fix: share the same cbuffer for the Universal2D pass\n* fix: workaround to prevent Built-in RP code from being executed in URP/HDRP\n* fix: correct inspector documentation URLs\n* fix: drop duplicate/unused Toon and Toon(Tessellation) shader properties\n* fix: resolve deprecated UxmlFactory warnings\n* fix: warnings - FindFirstObjectByType(), GetScriptingDefineSymbols(), SetScriptingDefineSymbols() \n\n## Removed\n* sample: delete unused materials\n* sample: remove unnecessary meta files\n* sample: delete unused Unity-chan materials for URP\n* doc: remove unused images\n* doc: remove the “What’s New” documentation pages\n* remove: strip all Raytraced Hard Shadow references"
+    "changelog": "* fix: shader compile error when screen space shadow is enabled in URP\n* fix: check property existence before when converting materials"
   },
   "upmCi": {
-    "footprint": "c5ef5e5aca0f718d2bf10825e97c849344ba7bec"
+    "footprint": "f23081d3bf30f311eebedd81edc38e159076bf9e"
   },
   "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.toonshader@0.13/manual/index.html",
   "repository": {
     "url": "https://github.com/Unity-Technologies/com.unity.toonshader.git",
     "type": "git",
-    "revision": "c0ef53a52f0d9f934c702ba64b5cfbf6ee7a9cff"
+    "revision": "bffef14fd67786ab1abcafcaab12af7ae2924047"
   }
 }
