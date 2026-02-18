@@ -1,20 +1,16 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
+using Unity.Rendering.Toon;
 using UnityEngine;
-using UnityEngine.UIElements;
+
 namespace UnityEditor.Rendering.Toon
 {
     internal sealed class BuiltInUTS2toIntegratedConverter : RenderPipelineConverterContainer
     {
         internal UTS3GUI.CullingMode m_cullingMode;
 
-
-
-
-        public override string name => "Unity-chan Toon Shader 2";
-        public override string info => "This tool converts project materials from Unity-chan Toon Shader to Unity Toon Shader " + UTS3GUI.versionString;
+        internal override string name => "Unity-chan Toon Shader 2";
+        
         public override int priority => -9000;
 
         public override void SetupConverter() {
@@ -413,16 +409,14 @@ namespace UnityEditor.Rendering.Toon
                 }
 
 
-
-                if (transparencyEnabled == UTS3GUI.UTS_TransparentMode.On)
+                bool transparentMode = transparencyEnabled == UTS3GUI.UTS_TransparentMode.On;
+                if (transparentMode)
                 {
                     UTS3GUI.MaterialSetInt(material, UTS3GUI.ShaderPropTransparentEnabled, 1);
-                    UTS3GUI.SetupOverDrawTransparentObject(material);
                 }
-                else
-                {
-                    UTS3GUI.SetupOutline(material);
-                }
+                
+                UTS3GUI.SetupTransparentModeForOutline(material, transparentMode);
+                
                 SetCullingMode(material);
                 int autoRenderQueue = renderQueueInMaterial == -1 ? 1:0;
                 SetAutoRenderQueue(material, autoRenderQueue);
@@ -544,8 +538,8 @@ namespace UnityEditor.Rendering.Toon
 
                     //Sharing variables with ShadingGradeMap method.
 
-                    material.SetFloat(UTS3GUI.ShaderProp1st_ShadeColor_Step, material.GetFloat(UTS3GUI.ShaderPropBaseColor_Step));
-                    material.SetFloat(UTS3GUI.ShaderProp1st_ShadeColor_Feather, material.GetFloat(UTS3GUI.ShaderPropBaseShade_Feather));
+                    material.SetFloat(ToonConstants.SHADER_PROP_TOON3D_1ST_SHADE_COLOR_STEP, material.GetFloat(ToonConstants.SHADER_PROP_TOON3D_BASE_COLOR_STEP));
+                    material.SetFloat(ToonConstants.SHADER_PROP_TOON3D_1ST_SHADE_COLOR_FEATHER, material.GetFloat(ToonConstants.SHADER_PROP_TOON3D_BASE_SHADE_FEATHER));
                     material.SetFloat(UTS3GUI.ShaderProp2nd_ShadeColor_Step, material.GetFloat(UTS3GUI.ShaderPropShadeColor_Step));
                     material.SetFloat(UTS3GUI.ShaderProp2nd_ShadeColor_Feather, material.GetFloat(UTS3GUI.ShaderProp1st2nd_Shades_Feather));
                 }
@@ -553,8 +547,8 @@ namespace UnityEditor.Rendering.Toon
                 {    //SGM
 
                     //Share variables with DoubleWithFeather method.
-                    material.SetFloat(UTS3GUI.ShaderPropBaseColor_Step, material.GetFloat(UTS3GUI.ShaderProp1st_ShadeColor_Step));
-                    material.SetFloat(UTS3GUI.ShaderPropBaseShade_Feather, material.GetFloat(UTS3GUI.ShaderProp1st_ShadeColor_Feather));
+                    material.SetFloat(ToonConstants.SHADER_PROP_TOON3D_BASE_COLOR_STEP, material.GetFloat(ToonConstants.SHADER_PROP_TOON3D_1ST_SHADE_COLOR_STEP));
+                    material.SetFloat(ToonConstants.SHADER_PROP_TOON3D_BASE_SHADE_FEATHER, material.GetFloat(ToonConstants.SHADER_PROP_TOON3D_1ST_SHADE_COLOR_FEATHER));
                     material.SetFloat(UTS3GUI.ShaderPropShadeColor_Step, material.GetFloat(UTS3GUI.ShaderProp2nd_ShadeColor_Step));
                     material.SetFloat(UTS3GUI.ShaderProp1st2nd_Shades_Feather, material.GetFloat(UTS3GUI.ShaderProp2nd_ShadeColor_Feather));
                 }
@@ -714,9 +708,9 @@ namespace UnityEditor.Rendering.Toon
             {//When AngelRing is available
                 material.SetFloat(UTS3GUI.ShaderPropIs_LightColor_AR, 1);
             }
-            if (material.HasProperty(UTS3GUI.ShaderPropOutline))
+            if (material.HasProperty(ToonConstants.SHADER_PROP_TOON3D_OUTLINE))
             {
-                material.SetFloat(UTS3GUI.ShaderPropIs_LightColor_Outline, 1);
+                material.SetFloat(ToonConstants.SHADER_PROP_TOON3D_IS_LIGHT_COLOR_OUTLINE, 1);
             }
             material.SetFloat(UTS3GUI.ShaderPropSetSystemShadowsToBase, 1);
             material.SetFloat(UTS3GUI.ShaderPropIsFilterHiCutPointLightColor, 1);

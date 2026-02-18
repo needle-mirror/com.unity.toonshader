@@ -1,4 +1,4 @@
-//Auto-generated on Fri Dec 19 07:08:10 UTC 2025
+//Auto-generated on Mon Dec 29 14:14:11 UTC 2025
 Shader "Toon/Toon" {
     Properties
     {
@@ -282,7 +282,6 @@ Shader "Toon/Toon" {
         _NormalScale("_NormalScale", Range(0.0, 8.0)) = 1
 
         _BentNormalMap("_BentNormalMap", 2D) = "bump" {}
-        _BentNormalMapOS("_BentNormalMapOS", 2D) = "white" {}
 
         // Height Maps
         _HeightMap("HeightMap", 2D) = "black" {}
@@ -292,17 +291,7 @@ Shader "Toon/Toon" {
         [HideInInspector] _HeightCenter("Height Center", Range(0.0, 1.0)) = 0.5 // In texture space
 
         [Enum(MinMax, 0, Amplitude, 1)] _HeightMapParametrization("Heightmap Parametrization", Int) = 0
-        // These parameters are for vertex displacement/Tessellation
         _HeightOffset("Height Offset", Float) = 0
-        // MinMax mode
-        _HeightMin("Heightmap Min", Float) = -1
-        _HeightMax("Heightmap Max", Float) = 1
-        // Amplitude mode
-        _HeightTessAmplitude("Amplitude", Float) = 2.0 // in Centimeters
-        _HeightTessCenter("Height Center", Range(0.0, 1.0)) = 0.5 // In texture space
-
-        // These parameters are for pixel displacement
-        _HeightPoMAmplitude("Height Amplitude", Float) = 2.0 // In centimeters
 
         // Detail Maps
         _DetailMap("DetailMap", 2D) = "linearGrey" {}
@@ -318,7 +307,6 @@ Shader "Toon/Toon" {
 
         // Diffusion Profile
         [HideInInspector] _DiffusionProfile("Obsolete, kept for migration purpose", Int) = 0
-        [HideInInspector] _DiffusionProfileAsset("Diffusion Profile Asset", Vector) = (0, 0, 0, 0)
         [HideInInspector] _DiffusionProfileHash("Diffusion Profile Hash", Float) = 0
         _SubsurfaceMask("Subsurface Radius", Range(0.0, 1.0)) = 1.0
         _SubsurfaceMaskMap("Subsurface Radius Map", 2D) = "white" {}
@@ -349,26 +337,16 @@ Shader "Toon/Toon" {
 
         // Emissive
         [HDR] _EmissiveColor("EmissiveColor", Color) = (0, 0, 0)
-        // Used only to serialize the LDR and HDR emissive color in the material UI,
-        // in the shader only the _EmissiveColor should be used
-        [HideInInspector] _EmissiveColorLDR("EmissiveColor LDR", Color) = (0, 0, 0)
         _EmissiveColorMap("EmissiveColorMap", 2D) = "white" {}
         [ToggleUI] _AlbedoAffectEmissive("Albedo Affect Emissive", Float) = 0.0
-        [HideInInspector] _EmissiveIntensityUnit("Emissive Mode", Int) = 0
-        [ToggleUI] _UseEmissiveIntensity("Use Emissive Intensity", Int) = 0
-        _EmissiveIntensity("Emissive Intensity", Float) = 1
         _EmissiveExposureWeight("Emissive Pre Exposure", Range(0.0, 1.0)) = 1.0
 
         // Distortion
         _DistortionVectorMap("DistortionVectorMap", 2D) = "black" {}
-        [ToggleUI] _DistortionEnable("Enable Distortion", Float) = 0.0
-        [ToggleUI] _DistortionDepthTest("Distortion Depth Test Enable", Float) = 1.0
-        [Enum(Add, 0, Multiply, 1, Replace, 2)] _DistortionBlendMode("Distortion Blend Mode", Int) = 0
         [HideInInspector] _DistortionSrcBlend("Distortion Blend Src", Int) = 0
         [HideInInspector] _DistortionDstBlend("Distortion Blend Dst", Int) = 0
         [HideInInspector] _DistortionBlurSrcBlend("Distortion Blur Blend Src", Int) = 0
         [HideInInspector] _DistortionBlurDstBlend("Distortion Blur Blend Dst", Int) = 0
-        [HideInInspector] _DistortionBlurBlendMode("Distortion Blur Blend Mode", Int) = 0
         _DistortionScale("Distortion Scale", Float) = 1
         _DistortionVectorScale("Distortion Vector Scale", Float) = 2
         _DistortionVectorBias("Distortion Vector Bias", Float) = -1
@@ -378,25 +356,16 @@ Shader "Toon/Toon" {
 
         // Alpha and Transparency
         [ToggleUI]  _UseShadowThreshold("_UseShadowThreshold", Float) = 0.0
-        [ToggleUI]  _AlphaCutoffEnable("Alpha Cutoff Enable", Float) = 0.0
         _AlphaCutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
         _AlphaCutoffShadow("_AlphaCutoffShadow", Range(0.0, 1.0)) = 0.5
         _AlphaCutoffPrepass("_AlphaCutoffPrepass", Range(0.0, 1.0)) = 0.5
         _AlphaCutoffPostpass("_AlphaCutoffPostpass", Range(0.0, 1.0)) = 0.5
-        [ToggleUI] _TransparentDepthPrepassEnable("_TransparentDepthPrepassEnable", Float) = 0.0
-        [ToggleUI] _TransparentBackfaceEnable("_TransparentBackfaceEnable", Float) = 0.0
-        [ToggleUI] _TransparentDepthPostpassEnable("_TransparentDepthPostpassEnable", Float) = 0.0
-        _TransparentSortPriority("_TransparentSortPriority", Float) = 0
 
         // Transparency
-        [Enum(None, 0, Box, 1, Sphere, 2, Thin, 3)]_RefractionModel("Refraction Model", Int) = 0
-        [Enum(Proxy, 1, HiZ, 2)]_SSRefractionProjectionModel("Refraction Projection Model", Int) = 0
         _Ior("Index Of Refraction", Range(1.0, 2.5)) = 1.0
-        _ThicknessMultiplier("Thickness Multiplier", Float) = 1.0
         _TransmittanceColor("Transmittance Color", Color) = (1.0, 1.0, 1.0)
         _TransmittanceColorMap("TransmittanceColorMap", 2D) = "white" {}
         _ATDistance("Transmittance Absorption Distance", Float) = 1.0
-        [ToggleUI] _TransparentWritingMotionVec("_TransparentWritingMotionVec", Float) = 0.0
 
         // Stencil state
         // Forward
@@ -413,11 +382,8 @@ Shader "Toon/Toon" {
         [HideInInspector] _StencilWriteMaskMV("_StencilWriteMaskMV", Int) = 128 // StencilBitMask.ObjectMotionVectors
         // Distortion vector pass
         [HideInInspector] _StencilRefDistortionVec("_StencilRefDistortionVec", Int) = 64 // StencilBitMask.DistortionVectors
-        [HideInInspector] _StencilWriteMaskDistortionVec("_StencilWriteMaskDistortionVec", Int) = 64 // StencilBitMask.DistortionVectors
 
         // Blending state
-        [HideInInspector] _SurfaceType("__surfacetype", Float) = 0.0
-        [HideInInspector] _BlendMode("__blendmode", Float) = 0.0
         [HideInInspector] _SrcBlend("__src", Float) = 1.0
         [HideInInspector] _DstBlend("__dst", Float) = 0.0
         [HideInInspector] _AlphaSrcBlend("__alphaSrc", Float) = 1.0
@@ -431,14 +397,9 @@ Shader "Toon/Toon" {
         [HideInInspector] _ZTestGBuffer("_ZTestGBuffer", Int) = 4
         [Enum(UnityEngine.Rendering.CompareFunction)] _ZTestTransparent("Transparent ZTest", Int) = 4 // Less equal
 
-        [ToggleUI] _EnableFogOnTransparent("Enable Fog", Float) = 1.0
-        [ToggleUI] _EnableBlendModePreserveSpecularLighting("Enable Blend Mode Preserve Specular Lighting", Float) = 1.0
-
         [ToggleUI] _DoubleSidedEnable("Double sided enable", Float) = 0.0
-        [Enum(Flip, 0, Mirror, 1, None, 2)] _DoubleSidedNormalMode("Double sided normal mode", Float) = 1
         [HideInInspector] _DoubleSidedConstants("_DoubleSidedConstants", Vector) = (1, 1, -1, 0)
 
-        [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3, Planar, 4, Triplanar, 5)] _UVBase("UV Set for base", Float) = 0
         [Enum(WorldSpace, 0, ObjectSpace, 1)] _ObjectSpaceUVMapping("Mapping space", Float) = 0.0
         _TexWorldScale("Scale to apply on world coordinate", Float) = 1.0
         [HideInInspector] _InvTilingScale("Inverse tiling scale = 2 / (abs(_BaseColorMap_ST.x) + abs(_BaseColorMap_ST.y))", Float) = 1
@@ -457,16 +418,12 @@ Shader "Toon/Toon" {
         _PPDMinSamples("Min sample for POM", Range(1.0, 64.0)) = 5
         _PPDMaxSamples("Max sample for POM", Range(1.0, 64.0)) = 15
         _PPDLodThreshold("Start lod to fade out the POM effect", Range(0.0, 16.0)) = 5
-        _PPDPrimitiveLength("Primitive length for POM", Float) = 1
-        _PPDPrimitiveWidth("Primitive width for POM", Float) = 1
         [HideInInspector] _InvPrimScale("Inverse primitive scale for non-planar POM", Vector) = (1, 1, 0, 0)
 
         [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)] _UVDetail("UV Set for detail", Float) = 0
         [HideInInspector] _UVDetailsMappingMask("_UVDetailsMappingMask", Color) = (1, 0, 0, 0)
         [ToggleUI] _LinkDetailsWithBase("LinkDetailsWithBase", Float) = 1.0
 
-        [Enum(Use Emissive Color, 0, Use Emissive Mask, 1)] _EmissiveColorMode("Emissive color mode", Float) = 1
-        [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3, Planar, 4, Triplanar, 5)] _UVEmissive("UV Set for emissive", Float) = 0
         _TexWorldScaleEmissive("Scale to apply on world coordinate", Float) = 1.0
         [HideInInspector] _UVMappingMaskEmissive("_UVMappingMaskEmissive", Color) = (1, 0, 0, 0)
 
@@ -480,102 +437,12 @@ Shader "Toon/Toon" {
         ////////// _MainTex("BaseMap", 2D) = "white" {}
         _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
 
-        [ToggleUI] _SupportDecals("Support Decals", Float) = 1.0
-        [ToggleUI] _ReceivesSSR("Receives SSR", Float) = 1.0
-        [ToggleUI] _AddPrecomputedVelocity("AddPrecomputedVelocity", Float) = 0.0
         //////////////////////////////////////////////////////////////////////////////
         //////////////////// End of HDRP material default values. ////////////////////
         //////////////////////////////////////////////////////////////////////////////
 
         [HideInInspector] _ToonMaterialVersion ("Toon Material Version", Integer ) = 0
     }
-
-
-    HLSLINCLUDE
-
-    #define DISABLE_RP_SHADERS
-    //-------------------------------------------------------------------------------------
-    // Variant
-    //-------------------------------------------------------------------------------------
-#ifndef DISABLE_RP_SHADERS
-// HDRP Variant
-    #pragma shader_feature_local _ALPHATEST_ON
-    #pragma shader_feature_local _DEPTHOFFSET_ON
-    #pragma shader_feature_local _DOUBLESIDED_ON
-    #pragma shader_feature_local _ _VERTEX_DISPLACEMENT _PIXEL_DISPLACEMENT
-    #pragma shader_feature_local _VERTEX_DISPLACEMENT_LOCK_OBJECT_SCALE
-    #pragma shader_feature_local _DISPLACEMENT_LOCK_TILING_SCALE
-    #pragma shader_feature_local _PIXEL_DISPLACEMENT_LOCK_OBJECT_SCALE
-    #pragma shader_feature_local _TESSELLATION_PHONG
-    #pragma shader_feature_local _ _REFRACTION_PLANE _REFRACTION_SPHERE _REFRACTION_THIN
-
-    #pragma shader_feature_local _ _EMISSIVE_MAPPING_PLANAR _EMISSIVE_MAPPING_TRIPLANAR
-    #pragma shader_feature_local _ _MAPPING_PLANAR _MAPPING_TRIPLANAR
-    #pragma shader_feature_local _NORMALMAP_TANGENT_SPACE
-    #pragma shader_feature_local _ _REQUIRE_UV2 _REQUIRE_UV3
-
-    #pragma shader_feature_local _NORMALMAP
-    #pragma shader_feature_local _MASKMAP
-    #pragma shader_feature_local _BENTNORMALMAP
-    #pragma shader_feature_local _EMISSIVE_COLOR_MAP
-
-    // _ENABLESPECULAROCCLUSION keyword is obsolete but keep here for compatibility. Do not used
-    // _ENABLESPECULAROCCLUSION and _SPECULAR_OCCLUSION_X can't exist at the same time (the new _SPECULAR_OCCLUSION replace it)
-    // When _ENABLESPECULAROCCLUSION is found we define _SPECULAR_OCCLUSION_X so new code to work
-    #pragma shader_feature_local _ENABLESPECULAROCCLUSION
-    #pragma shader_feature_local _ _SPECULAR_OCCLUSION_NONE _SPECULAR_OCCLUSION_FROM_BENT_NORMAL_MAP
-    #ifdef _ENABLESPECULAROCCLUSION
-    #define _SPECULAR_OCCLUSION_FROM_BENT_NORMAL_MAP
-    #endif
-
-    #pragma shader_feature_local _HEIGHTMAP
-    #pragma shader_feature_local _TANGENTMAP
-    #pragma shader_feature_local _ANISOTROPYMAP
-    #pragma shader_feature_local _DETAIL_MAP
-    #pragma shader_feature_local _SUBSURFACE_MASK_MAP
-    #pragma shader_feature_local _THICKNESSMAP
-    #pragma shader_feature_local _IRIDESCENCE_THICKNESSMAP
-    #pragma shader_feature_local _SPECULARCOLORMAP
-    #pragma shader_feature_local _TRANSMITTANCECOLORMAP
-
-    #pragma shader_feature_local _DISABLE_DECALS
-    #pragma shader_feature_local _DISABLE_SSR
-    #pragma shader_feature_local _ADD_PRECOMPUTED_VELOCITY
-    #pragma shader_feature_local _ENABLE_GEOMETRIC_SPECULAR_AA
-
-    // Keyword for transparent
-    #pragma shader_feature _SURFACE_TYPE_TRANSPARENT
-    #pragma shader_feature_local _ _BLENDMODE_ALPHA _BLENDMODE_ADD _BLENDMODE_PRE_MULTIPLY
-    #pragma shader_feature_local _BLENDMODE_PRESERVE_SPECULAR_LIGHTING
-    #pragma shader_feature_local _ENABLE_FOG_ON_TRANSPARENT
-    #pragma shader_feature_local _TRANSPARENT_WRITES_MOTION_VEC
-
-    // MaterialFeature are used as shader feature to allow compiler to optimize properly
-    #pragma shader_feature_local _MATERIAL_FEATURE_SUBSURFACE_SCATTERING
-    #pragma shader_feature_local _MATERIAL_FEATURE_TRANSMISSION
-    #pragma shader_feature_local _MATERIAL_FEATURE_ANISOTROPY
-    #pragma shader_feature_local _MATERIAL_FEATURE_CLEAR_COAT
-    #pragma shader_feature_local _MATERIAL_FEATURE_IRIDESCENCE
-    #pragma shader_feature_local _MATERIAL_FEATURE_SPECULAR_COLOR
-
-
-
-
-    // enable dithering LOD crossfade
-    #pragma multi_compile _ LOD_FADE_CROSSFADE
-
-    //enable GPU instancing support
-    #pragma multi_compile_instancing
-    #pragma instancing_options renderinglayer
-    // enable debug shado
-    //    #pragma multi_compile _ UTS_DEBUG_SELFSHADOW
-    //    #pragma multi_compile _ UTS_DEBUG_SHADOWMAP
-    //    #pragma multi_compile _ UTS_DEBUG_SHADOWMAP_NO_OUTLINE
-    // end of HDRP Variants
-#endif //#ifndef DISABLE_RP_SHADERS
-
-    ENDHLSL
-
 
     // *************************** //
     // ****** HDRP Subshader ***** //
@@ -1220,21 +1087,6 @@ Shader "Toon/Toon" {
             #pragma vertex vert
             #pragma fragment frag
 
-#ifndef DISABLE_RP_SHADERS
-            // -------------------------------------
-            // urp Material Keywords
-            // -------------------------------------
-            #pragma shader_feature_local _ALPHAPREMULTIPLY_ON
-            #pragma shader_feature_local _EMISSION
-            #pragma shader_feature_local _METALLICSPECGLOSSMAP
-            #pragma shader_feature_local _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
-//            #pragma shader_feature _OCCLUSIONMAP
-
-            #pragma shader_feature_local _SPECULARHIGHLIGHTS_OFF
-            #pragma shader_feature_local _ENVIRONMENTREFLECTIONS_OFF
-            #pragma shader_feature_local _SPECULAR_SETUP
-            #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
-#endif
             // -------------------------------------
             // Lightweight Pipeline keywords
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN

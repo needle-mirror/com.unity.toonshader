@@ -112,6 +112,7 @@ half3 GlobalIlluminationUTS(BRDFData brdfData, half3 bakedGI, half occlusion, ha
 void ApplyDecalToSurfaceDataUTS(float4 positionCS, inout float3 albedo, inout SurfaceData surfaceData,
                                 inout float3 normalWS) {
 
+#if defined(_DBUFFER)
 
 #ifdef _SPECULAR_SETUP
 half metallic = 0;
@@ -131,6 +132,7 @@ ApplyDecal(positionCS,
            surfaceData.metallic,
            surfaceData.occlusion,
            surfaceData.smoothness);
+#endif
 #endif
 }
 
@@ -192,26 +194,13 @@ struct UtsLight {
 #endif
 };
 
+
+
 ///////////////////////////////////////////////////////////////////////////////
 //                      Light Abstraction                                    //
 /////////////////////////////////////////////////////////////////////////////
-half MainLightRealtimeShadowUTS(float4 shadowCoord, float4 positionCS) {
-#if !defined(MAIN_LIGHT_CALCULATE_SHADOWS)
-    return 1.0;
-#endif
-    ShadowSamplingData shadowSamplingData = GetMainLightShadowSamplingData();
-    half4 shadowParams = GetMainLightShadowParams();
-#if defined(_MAIN_LIGHT_SHADOWS_SCREEN)
-    return SampleScreenSpaceShadowmap(shadowCoord);
-#endif
 
-
-    return SampleShadowmap(
-        TEXTURE2D_ARGS(_MainLightShadowmapTexture, sampler_MainLightShadowmapTexture), shadowCoord, shadowSamplingData,
-        shadowParams, false);
-}
-
-half AdditionalLightRealtimeShadowUTS(int lightIndex, float3 positionWS, float4 positionCS) {
+half AdditionalLightRealtimeShadowUTS(int lightIndex, float3 positionWS) {
 #if defined(ADDITIONAL_LIGHT_CALCULATE_SHADOWS)
 
 
@@ -265,14 +254,14 @@ UtsLight GetUrpMainUtsLight() {
     return light;
 }
 
-UtsLight GetUrpMainUtsLight(float4 shadowCoord, float4 positionCS) {
+UtsLight GetUrpMainUtsLight(float4 shadowCoord) {
     UtsLight light = GetUrpMainUtsLight();
-    light.shadowAttenuation = MainLightRealtimeShadowUTS(shadowCoord, positionCS);
+    light.shadowAttenuation = MainLightRealtimeShadow(shadowCoord);
     return light;
 }
 
 // Fills a light struct given a perObjectLightIndex
-UtsLight GetAdditionalPerObjectUtsLight(int perObjectLightIndex, float3 positionWS, float4 positionCS) {
+UtsLight GetAdditionalPerObjectUtsLight(int perObjectLightIndex, float3 positionWS) {
     // Abstraction over Light input constants
 #if USE_STRUCTURED_BUFFER_FOR_LIGHT_DATA
     float4 lightPositionWS = _AdditionalLightsBuffer[perObjectLightIndex].position;
@@ -306,7 +295,7 @@ UtsLight GetAdditionalPerObjectUtsLight(int perObjectLightIndex, float3 position
     UtsLight light;
     light.direction = lightDirection;
     light.distanceAttenuation = attenuation;
-    light.shadowAttenuation = AdditionalLightRealtimeShadowUTS(perObjectLightIndex, positionWS, positionCS);
+    light.shadowAttenuation = AdditionalLightRealtimeShadowUTS(perObjectLightIndex, positionWS);
     light.color = color;
     light.type = lightPositionWS.w;
 #ifdef _LIGHT_LAYERS
@@ -334,17 +323,16 @@ UtsLight GetAdditionalPerObjectUtsLight(int perObjectLightIndex, float3 position
 
 // Fills a light struct given a loop i index. This will convert the i
 // index to a perObjectLightIndex
-UtsLight GetAdditionalUtsLight(uint i, float3 positionWS, float4 positionCS) {
+UtsLight GetAdditionalUtsLight(uint i, float3 positionWS) {
 #if USE_FORWARD_PLUS
     int perObjectLightIndex = i;
 #else
     int perObjectLightIndex = GetPerObjectLightIndex(i);
 #endif
-    return GetAdditionalPerObjectUtsLight(perObjectLightIndex, positionWS, positionCS);
+    return GetAdditionalPerObjectUtsLight(perObjectLightIndex, positionWS);
 }
 
-half3 GetLightColor(
-    UtsLight light
+half3 GetLightColor(UtsLight light
 #ifdef _LIGHT_LAYERS
     , uint meshRenderingLayers
 #endif
@@ -368,12 +356,12 @@ half3 GetLightColor(
             utslight.type = 0
 
 
-int DetermineUTS_MainLightIndex(float3 posW, float4 shadowCoord, float4 positionCS) {
+int DetermineUTS_MainLightIndex(float3 posW, float4 shadowCoord) {
     UtsLight mainLight;
     INIT_UTSLIGHT(mainLight);
 
     int mainLightIndex = MAINLIGHT_NOT_FOUND;
-    UtsLight nextLight = GetUrpMainUtsLight(shadowCoord, positionCS);
+    UtsLight nextLight = GetUrpMainUtsLight(shadowCoord);
     if (nextLight.distanceAttenuation > mainLight.distanceAttenuation && nextLight.type == 0)
     {
         mainLight = nextLight;
@@ -382,7 +370,7 @@ int DetermineUTS_MainLightIndex(float3 posW, float4 shadowCoord, float4 position
     int lightCount = GetAdditionalLightsCount();
     for (int ii = 0; ii < lightCount; ++ii)
     {
-        nextLight = GetAdditionalUtsLight(ii, posW, positionCS);
+        nextLight = GetAdditionalUtsLight(ii, posW);
         if (nextLight.distanceAttenuation > mainLight.distanceAttenuation && nextLight.type == 0)
         {
             mainLight = nextLight;
@@ -393,7 +381,7 @@ int DetermineUTS_MainLightIndex(float3 posW, float4 shadowCoord, float4 position
     return mainLightIndex;
 }
 
-UtsLight GetMainUtsLightByID(int index, float3 posW, float4 shadowCoord, float4 positionCS) {
+UtsLight GetMainUtsLightByID(int index, float3 posW, float4 shadowCoord) {
     UtsLight mainLight;
     INIT_UTSLIGHT(mainLight);
     if (index == MAINLIGHT_NOT_FOUND)
@@ -402,10 +390,21 @@ UtsLight GetMainUtsLightByID(int index, float3 posW, float4 shadowCoord, float4 
     }
     if (index == MAINLIGHT_IS_MAINLIGHT)
     {
-        return GetUrpMainUtsLight(shadowCoord, positionCS);
+        return GetUrpMainUtsLight(shadowCoord);
     }
-    return GetAdditionalUtsLight(index, posW, positionCS);
+    return GetAdditionalUtsLight(index, posW);
 }
+
+float4 GetShadowCoordUTS(VertexOutput v)
+{
+#if defined(_MAIN_LIGHT_SHADOWS_SCREEN) && !defined(_SURFACE_TYPE_TRANSPARENT)
+    return ComputeScreenPos(v.positionCS);
+#else
+    return TransformWorldToShadowCoord(v.posWorld);
+#endif
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 VertexOutput vert(VertexInput v) {
     VertexOutput o = (VertexOutput)0;
@@ -449,51 +448,25 @@ VertexOutput vert(VertexInput v) {
 #endif
 
     o.positionCS = positionCS;
+
+#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
+    o.shadowCoord = GetShadowCoordUTS(o);
+#endif
+    
 #if defined(_MAIN_LIGHT_SHADOWS) && !defined(_RECEIVE_SHADOWS_OFF)
-#if SHADOWS_SCREEN
-    o.shadowCoord = ComputeScreenPos(positionCS);
+    o.mainLightID = DetermineUTS_MainLightIndex(o.posWorld.xyz, o.shadowCoord);
 #else
-    o.shadowCoord = TransformWorldToShadowCoord(o.posWorld.xyz);
+    o.mainLightID = DetermineUTS_MainLightIndex(o.posWorld.xyz, 0);
 #endif
-    o.mainLightID = DetermineUTS_MainLightIndex(o.posWorld.xyz, o.shadowCoord, positionCS);
-#else
-    o.mainLightID = DetermineUTS_MainLightIndex(o.posWorld.xyz, 0, positionCS);
-#endif
-
-
+    
     return o;
 }
 
 
+//the actual fragment shaders
 #if defined(_SHADINGGRADEMAP)
-
 #include "UniversalToonBodyShadingGradeMap.hlsl"
-
 #else //#if defined(_SHADINGGRADEMAP)
-
 #include "UniversalToonBodyDoubleShadeWithFeather.hlsl"
-
 #endif //#if defined(_SHADINGGRADEMAP)
 
-void frag(
-    VertexOutput i
-    , fixed facing : VFACE
-    , out float4 finalRGBA : SV_Target0
-#ifdef _WRITE_RENDERING_LAYERS
-    , out float4 outRenderingLayers : SV_Target1
-#endif
-) {
-#if defined(_SHADINGGRADEMAP)
-    fragShadingGradeMap(i, facing, finalRGBA
-#ifdef _WRITE_RENDERING_LAYERS
-                            ,outRenderingLayers
-#endif
-                    );
-#else
-    fragDoubleShadeFeather(i, facing, finalRGBA
-#ifdef _WRITE_RENDERING_LAYERS
-                            ,outRenderingLayers
-#endif
-    );
-#endif
-}
