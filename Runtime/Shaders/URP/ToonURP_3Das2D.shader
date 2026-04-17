@@ -53,7 +53,6 @@ Shader "Toon/Toon 3D as 2D (URP)"{
         _OutlineFar ("Outline Far", Float ) = 100
         _Outline_UseNormalMap ("Outline: Use Outline Normal Map", Integer ) = 0
         _Outline_NormalMap ("Outline Normal Map", 2D) = "bump" {}
-        
         [HideInInspector] _ToonMaterialVersion ("Toon Material Version", Integer ) = 0
         
     }
@@ -169,6 +168,7 @@ Shader "Toon/Toon 3D as 2D (URP)"{
 
             #include "ObjectTransform.hlsl"
             #include "ShapeLight2D.hlsl"
+            #include "../UTSLighting.hlsl"
 
             //_HDREmulationScale declaration
             #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/ShapeLightVariables.hlsl" 
@@ -192,31 +192,6 @@ Shader "Toon/Toon 3D as 2D (URP)"{
                 
                 return o;
             }
-
-
-            float3 ThreeColorsLinearShading(
-                float3 baseColor,
-                float3 firstColor,
-                float3 secondColor,
-                float3  baseTo1stStart,     // t=0: use base, t=1: transition
-                float3  baseTo1stFeather,
-                float3  firstToSecondStart, //t=0: use base, t=1: transition
-                float3  firstToSecondFeather,
-                float  dotNL) // dot(N.L)
-            {
-                const float t = saturate(1 - dotNL); //t = 0: light, t=1: dark shaded
-
-                const float invBaseTo1stStart = 1 - baseTo1stStart;
-                const float invBaseTo2ndStart = 1 - firstToSecondStart;
-                
-                const float s1 = smoothstep(invBaseTo1stStart, invBaseTo1stStart + baseTo1stFeather,t); 
-                const float s2 = smoothstep(invBaseTo2ndStart, invBaseTo2ndStart + firstToSecondFeather,t); 
-                
-                float3 c01 = lerp(baseColor,firstColor,  s1);
-                float3 c12 = lerp(c01, secondColor, s2);
-                return c12;
-            }
-
 
             half4 CombinedShapeLightAndToon(ShapeLightResult shapeLightResult, SurfaceData2D surfaceData,
                 in float2 uv,
@@ -252,9 +227,9 @@ Shader "Toon/Toon 3D as 2D (URP)"{
                 
                 //perform 3 color linear shading with 2D colors and lights  
                 const float3 color2D = ThreeColorsLinearShading(
-                    (baseAlbedo * light2dMod + light2dAdd).rgb,
-                    (firstShadeAlbedo * light2dMod + light2dAdd).rgb,
-                    (secondShadeAlbedo * light2dMod + light2dAdd).rgb,
+                    (baseAlbedo * light2dMod.rgb + light2dAdd.rgb).rgb,
+                    (firstShadeAlbedo * light2dMod.rgb + light2dAdd.rgb).rgb,
+                    (secondShadeAlbedo * light2dMod.rgb + light2dAdd.rgb).rgb,
                     _BaseTo1st_ShadeStart, _BaseTo1st_ShadeFeather,
                     _1stTo2nd_ShadeStart, _1stTo2nd_ShadeFeather, light2dIntensity);
                 
@@ -307,7 +282,7 @@ Shader "Toon/Toon 3D as 2D (URP)"{
                 SurfaceData2D surfaceData;
   
                 const float3 normalWS = normalize(input.normalWS);
-                const float3 tangentWS = normalize(input.tangentWS);
+                const float3 tangentWS = normalize(input.tangentWS.xyz);
                 const float3 bitangentWS = normalize(cross(normalWS, tangentWS) * input.tangentWS.w);
 
                 const float alpha = main.a;

@@ -1,11 +1,12 @@
 {
-    "name": "Unity.Toonshader.EditorTests",
+    "name": "Unity.ToonShader.EditorTests",
     "rootNamespace": "",
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "Unity.Toonshader",
-        "Unity.FilmInternalUtilities.Editor"
+        "Unity.FilmInternalUtilities.Editor",
+        "Unity.Toonshader.Editor"
     ],
     "includePlatforms": [
         "Editor"
