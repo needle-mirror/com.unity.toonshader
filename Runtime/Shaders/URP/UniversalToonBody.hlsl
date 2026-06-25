@@ -21,28 +21,6 @@
 # endif
 #endif
 
-
-#if USE_FORWARD_PLUS && defined(LIGHTMAP_ON) && defined(LIGHTMAP_SHADOW_MIXING)
-#define FORWARD_PLUS_SUBTRACTIVE_LIGHT_CHECK if (_AdditionalLightsColor[lightIndex].a > 0.0h) continue;
-#else
-#define FORWARD_PLUS_SUBTRACTIVE_LIGHT_CHECK
-#endif
-
-#if USE_FORWARD_PLUS
-#define UTS_LIGHT_LOOP_BEGIN(lightCount) { \
-    uint lightIndex; \
-    ClusterIterator _urp_internal_clusterIterator = ClusterInit(inputData.normalizedScreenSpaceUV, i.posWorld.xyz, 0); \
-    [loop] while (ClusterNext(_urp_internal_clusterIterator, lightIndex)) { \
-        lightIndex += URP_FP_DIRECTIONAL_LIGHTS_COUNT; \
-        FORWARD_PLUS_SUBTRACTIVE_LIGHT_CHECK
-#define UTS_LIGHT_LOOP_END } }
-#else
-#define UTS_LIGHT_LOOP_BEGIN(lightCount) \
-    for (uint lightIndex = 0u; lightIndex < lightCount; ++lightIndex) {
-
-#define UTS_LIGHT_LOOP_END }
-#endif
-
 //function to rotate the UV: RotateUV()
 //float2 rotatedUV = RotateUV(i.uv0, (_angular_Verocity*3.141592654), float2(0.5, 0.5), _Time.g);
 float2 RotateUV(float2 _uv, float _radian, float2 _piv, float _time) {
@@ -99,7 +77,7 @@ half3 GlobalIlluminationUTS(BRDFData brdfData, half3 bakedGI, half occlusion, ha
     half fresnelTerm = Pow4(1.0 - saturate(dot(normalWS, viewDirectionWS)));
 
     half3 indirectDiffuse = bakedGI * occlusion;
-#if USE_FORWARD_PLUS
+#if USE_FORWARD_PLUS || USE_CLUSTER_LIGHT_LOOP
     half3 irradiance = CalculateIrradianceFromReflectionProbes(reflectVector, positionWS, brdfData.perceptualRoughness,
         normalizedScreenSpaceUV);
     half3 indirectSpecular = irradiance * occlusion;
@@ -259,12 +237,10 @@ VertexOutput vert(VertexInput v) {
 
     float3 crossFwd = cross(UNITY_MATRIX_V[0].xyz, UNITY_MATRIX_V[1].xyz);
     o.mirrorFlag = dot(crossFwd, UNITY_MATRIX_V[2].xyz) < 0 ? 1 : -1;
-    //
 
+    //
     float3 positionWS = TransformObjectToWorld(v.vertex.xyz);
     float4 positionCS = TransformWorldToHClip(positionWS);
-    half3 vertexLight = VertexLighting(o.posWorld.xyz, o.normalDir);
-    half fogFactor = ComputeFogFactor(positionCS.z);
 
     OUTPUT_LIGHTMAP_UV(v.lightmapUV, unity_LightmapST, o.lightmapUV);
     
@@ -281,6 +257,21 @@ VertexOutput vert(VertexInput v) {
     return o;
 }
 
+#if UNITY_VERSION >= 60030000
+
+#define ENCODE_MESH_RENDERING_LAYER_UTS EncodeMeshRenderingLayer()
+
+#else
+
+#define ENCODE_MESH_RENDERING_LAYER_UTS EncodeMeshRenderingLayer(GetMeshRenderingLayer())
+
+#ifndef CLUSTER_LIGHT_LOOP_SUBTRACTIVE_LIGHT_CHECK
+#define CLUSTER_LIGHT_LOOP_SUBTRACTIVE_LIGHT_CHECK FORWARD_PLUS_SUBTRACTIVE_LIGHT_CHECK
+#endif //CLUSTER_LIGHT_LOOP_SUBTRACTIVE_LIGHT_CHECK
+
+#endif
+
+//----------------------------------------------------------------------------------------------------------------------
 
 //the actual fragment shaders
 #if defined(_SHADINGGRADEMAP)

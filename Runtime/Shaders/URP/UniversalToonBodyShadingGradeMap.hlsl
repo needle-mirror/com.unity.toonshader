@@ -63,16 +63,75 @@ void ToonShadingSG(
     outShadowMask = Set_FinalShadowMask;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
+float3 ProcessAdditionalLightSG(
+    uint lightIndex,
+    float3 positionWS,
+    half4 shadowMask,
+#ifdef _LIGHT_LAYERS
+    uint meshRenderingLayers,
+#endif
+    float3 highlightAlbedo,
+    float3 highlightMaskTex,
+    float3 baseAlbedo,
+    float3 firstShadeAlbedo,
+    float3 secondShadeAlbedo,
+    float3 vertexNormalDir,
+    float3 normalDirection,
+    float3 viewDirection,
+    float sgMapLevel
+)
+{
+    Light additionalLight = GetAdditionalLight(lightIndex, positionWS, shadowMask);
+    half3 additionalLightColor = GetLightColor(
+        additionalLight
+#ifdef _LIGHT_LAYERS
+        , meshRenderingLayers
+#endif
+    );
+
+    float3 lightDirection = additionalLight.direction;
+
+    float3 addPassLightColor = (0.5 * dot(lerp(vertexNormalDir, normalDirection, _Is_NormalMapToBase), lightDirection) +
+        0.5) * additionalLightColor.rgb;
+    float pureIntensity = max(0.001, Intensity(additionalLightColor));
+    float3 lightColor = max(float3(0.0, 0.0, 0.0), lerp(addPassLightColor,
+        min(addPassLightColor, addPassLightColor / pureIntensity),
+        _Is_Filter_LightColor));
+
+    float lightIntensity = Intensity(additionalLightColor);
+
+    const float shadowAtt = TweakShadow(additionalLight.shadowAttenuation);
+
+    float firstShadeColorStep = saturate(_1st_ShadeColor_Step + _StepOffset);
+    float secondShadeColorStep = saturate(_2nd_ShadeColor_Step + _StepOffset);
+    float specularBlendModeLerp = 1;
+    float filterHighlightInForwardAdd = _Is_Filter_HiCutPointLightColor;
+    float3 finalColor = float3(0,0,0);
+    float unused = 0;
+    ToonShadingSG(
+        highlightAlbedo, highlightMaskTex.rgb,
+        lightColor, lightIntensity, shadowAtt,
+        baseAlbedo, firstShadeAlbedo, secondShadeAlbedo,
+        firstShadeColorStep, secondShadeColorStep,
+        vertexNormalDir, normalDirection, lightDirection, viewDirection,
+        specularBlendModeLerp, filterHighlightInForwardAdd, sgMapLevel,
+        finalColor, unused);
+
+    return SATURATE_IF_SDR(finalColor);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void frag(VertexOutput i, out float4 finalRGBA : SV_Target0
 #ifdef _WRITE_RENDERING_LAYERS
           , out float4 outRenderingLayers : SV_Target1
 #endif
 ) {
-    i.normalDir = normalize(i.normalDir);
-    
-    const float3x3 tangentTransform = float3x3(i.tangentDir, i.bitangentDir, i.normalDir);
+    const float3 normalDir = normalize(i.normalDir);
+
+    const float3x3 tangentTransform = float3x3(i.tangentDir, i.bitangentDir, normalDir);
     const float3 viewDirection = normalize(_WorldSpaceCameraPos.xyz - i.posWorld.xyz);
     const float2 Set_UV0 = i.uv0;
 
@@ -102,7 +161,7 @@ void frag(VertexOutput i, out float4 finalRGBA : SV_Target0
 #ifdef REQUIRES_WORLD_SPACE_POS_INTERPOLATOR
     input.positionWS = i.posWorld.xyz;
 #endif
-    input.normalWS = half3(i.normalDir);
+    input.normalWS = half3(normalDir);
     InitializeInputData(input, surfaceData.normalTS, inputData);
     InitializeBakedGIData(input, inputData);
     BRDFData brdfData;
@@ -219,10 +278,10 @@ void frag(VertexOutput i, out float4 finalRGBA : SV_Target0
     float Set_FinalShadowMask;
     ToonShadingSG(
         highlightAlbedo, highlightMaskTex.rgb,
-        lightColor, lightIntensity, shadowAtt, 
+        lightColor, lightIntensity, shadowAtt,
         baseAlbedo, firstShadeAlbedo, secondShadeAlbedo,
         firstShadeColorStep, secondShadeColorStep,
-        i.normalDir, normalDirection, lightDirection, viewDirection,
+        normalDir, normalDirection, lightDirection, viewDirection,
         specularBlendModeLerp, filterHighlightInForwardAdd, sgMapLevel, 
         Set_HighColor, Set_FinalShadowMask);
 
@@ -230,12 +289,12 @@ void frag(VertexOutput i, out float4 finalRGBA : SV_Target0
 
     float3 _Is_LightColor_RimLight_var = lerp(_RimLightColor.rgb, (_RimLightColor.rgb * lightColor),
         _Is_LightColor_RimLight);
-    float _RimArea_var = abs(1.0 - dot(lerp(i.normalDir, normalDirection, _Is_NormalMapToRimLight), viewDirection));
+    float _RimArea_var = abs(1.0 - dot(lerp(normalDir, normalDirection, _Is_NormalMapToRimLight), viewDirection));
     float _RimLightPower_var = pow(_RimArea_var, exp2(lerp(3, 0, _RimLight_Power)));
     float _Rimlight_InsideMask_var = saturate(lerp(
         (0.0 + ((_RimLightPower_var - _RimLight_InsideMask) * (1.0 - 0.0)) / (1.0 - _RimLight_InsideMask)),
         step(_RimLight_InsideMask, _RimLightPower_var), _RimLight_FeatherOff));
-    float _VertHalfLambert_var = 0.5 * dot(i.normalDir, lightDirection) + 0.5;
+    float _VertHalfLambert_var = 0.5 * dot(normalDir, lightDirection) + 0.5;
     float3 _LightDirection_MaskOn_var = lerp((_Is_LightColor_RimLight_var * _Rimlight_InsideMask_var),
         (_Is_LightColor_RimLight_var * saturate(
             (_Rimlight_InsideMask_var - ((1.0 - _VertHalfLambert_var) + _Tweak_LightDirection_MaskLevel)))),
@@ -290,7 +349,7 @@ void frag(VertexOutput i, out float4 finalRGBA : SV_Target0
 
     //v.2.0.5: MatCap with camera skew correction
     float3 viewNormal = (mul(UNITY_MATRIX_V,
-        float4(lerp(i.normalDir, mul(_NormalMapForMatCap_var.rgb, tangentTransform).rgb, _Is_NormalMapForMatCap),
+        float4(lerp(normalDir, mul(_NormalMapForMatCap_var.rgb, tangentTransform).rgb, _Is_NormalMapForMatCap),
             0))).rgb;
     float3 NormalBlend_MatcapUV_Detail = viewNormal.rgb * float3(-1, -1, 1);
     float3 NormalBlend_MatcapUV_Base = (mul(UNITY_MATRIX_V, float4(viewDirection, 0)).rgb * float3(-1, -1, 1)) +
@@ -346,7 +405,7 @@ void frag(VertexOutput i, out float4 finalRGBA : SV_Target0
 #if defined(_IS_ANGELRING_ON)
     float3 finalColor = lerp(_RimLight_var, matCapColorFinal, _MatCap); // Final Composition before AR
     //v.2.0.7 AR Camera Rolling Stabilizer
-    float3 _AR_OffsetU_var = lerp(mul(UNITY_MATRIX_V, float4(i.normalDir, 0)).xyz, float3(0, 0, 1), _AR_OffsetU);
+    float3 _AR_OffsetU_var = lerp(mul(UNITY_MATRIX_V, float4(normalDir, 0)).xyz, float3(0, 0, 1), _AR_OffsetU);
     float2 AR_VN = _AR_OffsetU_var.xy * 0.5 + float2(0.5, 0.5);
     float2 AR_VN_Rotate = RotateUV(AR_VN, -(_Camera_Dir * _Camera_Roll), float2(0.5, 0.5), 1.0);
     float2 _AR_OffsetV_var = float2(AR_VN_Rotate.x, lerp(i.uv1.y, AR_VN_Rotate.y, _AR_OffsetV));
@@ -370,7 +429,7 @@ void frag(VertexOutput i, out float4 finalRGBA : SV_Target0
     emissive = _Emissive_Tex_var.rgb * _Emissive_Color.rgb * emissiveMask;
 #elif _EMISSIVE_ANIMATION
     //v.2.0.7 Calculation View Coord UV for Scroll
-    float3 viewNormal_Emissive = (mul(UNITY_MATRIX_V, float4(i.normalDir, 0))).xyz;
+    float3 viewNormal_Emissive = (mul(UNITY_MATRIX_V, float4(normalDir, 0))).xyz;
     float3 NormalBlend_Emissive_Detail = viewNormal_Emissive * float3(-1, -1, 1);
     float3 NormalBlend_Emissive_Base = (mul(UNITY_MATRIX_V, float4(viewDirection, 0)).xyz * float3(-1, -1, 1)) +
         float3(0, 0, 1);
@@ -418,119 +477,48 @@ void frag(VertexOutput i, out float4 finalRGBA : SV_Target0
     float3 pointLightColor = 0;
 #ifdef _ADDITIONAL_LIGHTS
 
-    int pixelLightCount = GetAdditionalLightsCount();
 
-#if USE_FORWARD_PLUS
+#if USE_CLUSTER_LIGHT_LOOP || USE_FORWARD_PLUS
+    // directional lights in Forward+/Cluster light loop
     for (uint loopCounter = 0; loopCounter < min(URP_FP_DIRECTIONAL_LIGHTS_COUNT, MAX_VISIBLE_LIGHTS); loopCounter++)
     {
-        int iLight = loopCounter;
-        {
-            float notDirectional = 1.0f; //_WorldSpaceLightPos0.w of the legacy code.
-            Light additionalLight = GetAdditionalLight(loopCounter, inputData.positionWS, shadowMask);
-            half3 additionalLightColor = GetLightColor(
-                additionalLight
+        float3 perLightContribution = ProcessAdditionalLightSG(
+            loopCounter,
+            inputData.positionWS,
+            shadowMask,
 #ifdef _LIGHT_LAYERS
-                , meshRenderingLayers
+            meshRenderingLayers,
 #endif
-            );
-
-            float3 lightDirection = additionalLight.direction;
-            //v.2.0.5:
-            float3 addPassLightColor = (0.5 * dot(lerp(i.normalDir, normalDirection, _Is_NormalMapToBase), lightDirection) +
-                0.5) * additionalLightColor.rgb;
-            float pureIntencity = max(0.001,
-                Intensity(additionalLightColor));
-            float3 lightColor = max(float3(0.0, 0.0, 0.0), lerp(addPassLightColor,
-                lerp(float3(0.0, 0.0, 0.0), min(addPassLightColor, addPassLightColor / pureIntencity), notDirectional),
-                _Is_Filter_LightColor));
-            float3 halfDirection = normalize(viewDirection + lightDirection); // has to be recalced here.
-
-            //v.2.0.5: If Added lights is directional, set 0 as _LightIntensity
-            float _LightIntensity = lerp(0,
-                Intensity(additionalLightColor),
-                notDirectional);
-            
-            float lightIntensity = _LightIntensity;
-            
-            const float shadowAtt = TweakShadow(additionalLight.shadowAttenuation);
-            
-            float firstShadeColorStep = saturate(_1st_ShadeColor_Step + _StepOffset);
-            float secondShadeColorStep = saturate(_2nd_ShadeColor_Step + _StepOffset);
-            float specularBlendModeLerp = 1;
-            float filterHighlightInForwardAdd = _Is_Filter_HiCutPointLightColor;
-            float3 finalColor = float3(0,0,0);
-            float unused = 0;
-            //[TODO-sin: 2026-2-6] We should normalize i.normalDir too here.
-            ToonShadingSG(
-                highlightAlbedo, highlightMaskTex.rgb,
-                lightColor, lightIntensity, shadowAtt, 
-                baseAlbedo, firstShadeAlbedo, secondShadeAlbedo,
-                firstShadeColorStep, secondShadeColorStep,
-                i.normalDir, normalDirection, lightDirection, viewDirection,
-                specularBlendModeLerp, filterHighlightInForwardAdd, sgMapLevel, 
-                finalColor, unused);
-                        
-            
-
-            finalColor = SATURATE_IF_SDR(finalColor);
-
-            pointLightColor += finalColor;
-        }
-    }
-#endif  // USE_FORWARD_PLUS
-
-    UTS_LIGHT_LOOP_BEGIN(pixelLightCount)
-    int iLight = lightIndex;
-    {
-        float notDirectional = 1.0f; //_WorldSpaceLightPos0.w of the legacy code.
-        Light additionalLight = GetAdditionalLight(iLight, inputData.positionWS, shadowMask);
-        half3 additionalLightColor = GetLightColor(
-            additionalLight
-#ifdef _LIGHT_LAYERS
-            , meshRenderingLayers
-#endif
-        );
-        
-        float3 lightDirection = additionalLight.direction;
-        //v.2.0.5:
-        float3 addPassLightColor = (0.5 * dot(lerp(i.normalDir, normalDirection, _Is_NormalMapToBase), lightDirection) +
-            0.5) * additionalLightColor.rgb;
-        float pureIntencity = max(0.001,
-            Intensity(additionalLightColor));
-        float3 lightColor = max(float3(0.0, 0.0, 0.0), lerp(addPassLightColor,
-            lerp(float3(0.0, 0.0, 0.0), min(addPassLightColor, addPassLightColor / pureIntencity), notDirectional),
-            _Is_Filter_LightColor));
-        float3 halfDirection = normalize(viewDirection + lightDirection); // has to be recalced here.
-
-        //v.2.0.5: If Added lights is directional, set 0 as _LightIntensity
-        float _LightIntensity = lerp(0,
-            Intensity(additionalLightColor),
-            notDirectional);
-
-        float lightIntensity = _LightIntensity;
-        
-        const float shadowAtt = TweakShadow(additionalLight.shadowAttenuation);
-        
-        float firstShadeColorStep = saturate(_1st_ShadeColor_Step + _StepOffset);
-        float secondShadeColorStep = saturate(_2nd_ShadeColor_Step + _StepOffset);
-        float specularBlendModeLerp = 1;
-        float filterHighlightInForwardAdd = _Is_Filter_HiCutPointLightColor;
-        float3 finalColor = float3(0,0,0);
-        float unused = 0;
-        //[TODO-sin: 2026-2-6] We should normalize i.normalDir too here.
-        ToonShadingSG(
             highlightAlbedo, highlightMaskTex.rgb,
-            lightColor, lightIntensity, shadowAtt, 
             baseAlbedo, firstShadeAlbedo, secondShadeAlbedo,
-            firstShadeColorStep, secondShadeColorStep,
-            i.normalDir, normalDirection, lightDirection, viewDirection,
-            specularBlendModeLerp, filterHighlightInForwardAdd, sgMapLevel, 
-            finalColor, unused);
-            
-        finalColor = SATURATE_IF_SDR(finalColor);
-        pointLightColor += finalColor;
+            normalDir, normalDirection, viewDirection,
+            sgMapLevel
+        );
+
+        pointLightColor += perLightContribution;
     }
-    UTS_LIGHT_LOOP_END
+#endif  // USE_CLUSTER_LIGHT_LOOP || USE_FORWARD_PLUS
+
+    // spot lights, etc
+    const int pixelLightCount = GetAdditionalLightsCount();
+    LIGHT_LOOP_BEGIN(pixelLightCount)
+
+        float3 perLightContribution = ProcessAdditionalLightSG(
+            lightIndex,
+            inputData.positionWS,
+            shadowMask,
+#ifdef _LIGHT_LAYERS
+            meshRenderingLayers,
+#endif
+            highlightAlbedo, highlightMaskTex.rgb,
+            baseAlbedo, firstShadeAlbedo, secondShadeAlbedo,
+            normalDir, normalDirection, viewDirection,
+            sgMapLevel
+        );
+
+        pointLightColor += perLightContribution;
+
+    LIGHT_LOOP_END
 
 #endif // _ADDITIONAL_LIGHTS
 
@@ -559,7 +547,6 @@ void frag(VertexOutput i, out float4 finalRGBA : SV_Target0
     finalRGBA.rgb = MixFog(finalRGBA.rgb, inputData.fogCoord);
 
 #ifdef _WRITE_RENDERING_LAYERS
-    uint renderingLayers = GetMeshRenderingLayer();
-    outRenderingLayers = float4(EncodeMeshRenderingLayer(renderingLayers), 0, 0, 0);
+    outRenderingLayers = float4(ENCODE_MESH_RENDERING_LAYER_UTS, 0, 0, 1);
 #endif
 }

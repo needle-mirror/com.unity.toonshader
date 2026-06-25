@@ -6,7 +6,7 @@ namespace Unity.Rendering.Toon {
 internal static class ToonConstants {
 
     internal const string PACKAGE_NAME = "com.unity.toonshader";
-    internal const string PACKAGE_VERSION_MAJOR_MINOR = "0.14";
+    internal const string PACKAGE_VERSION_MAJOR_MINOR = "0.15";
     
     internal const string SHADER_KEYWORD_IS_CLIPPING_MATTE = "_IS_CLIPPING_MATTE";
 
@@ -79,7 +79,12 @@ internal static class ToonConstants {
     internal const string SHADER_PROP_OUTLINE_FAR = "_OutlineFar";
     internal const string SHADER_PROP_OUTLINE_USE_NORMAL_MAP = "_Outline_UseNormalMap";
     internal const string SHADER_PROP_OUTLINE_NORMAL_MAP = "_Outline_NormalMap";
-    
+
+    internal const string SHADER_PROP_STENCIL_REF     = "_StencilRef";
+    internal const string SHADER_PROP_STENCIL_COMP    = "_StencilComp";
+    internal const string SHADER_PROP_STENCIL_OP_PASS = "_StencilOpPass";
+    internal const string SHADER_PROP_STENCIL_OP_FAIL = "_StencilOpFail";
+
     internal static readonly int SHADER_PROPERTY_MATERIAL_VERSION = Shader.PropertyToID("_ToonMaterialVersion");
     
     internal const string SHADER_PROP_DIRECTIONAL_LIGHT_DIRECTION = "_DirectionalLight_Direction";
