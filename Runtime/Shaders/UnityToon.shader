@@ -1,4 +1,4 @@
-//Auto-generated on Mon Aug 24 11:52:29 UTC 2026
+//Auto-generated on Tue Oct 27 15:35:15 UTC 2026
 Shader "Toon/Toon" {
     Properties
     {
@@ -75,6 +75,7 @@ Shader "Toon/Toon" {
         //v.2.0.4.4
         [Toggle(_)] _Set_SystemShadowsToBase ("Set_SystemShadowsToBase", Float ) = 1
         _Tweak_SystemShadowsLevel ("Tweak_SystemShadowsLevel", Range(-0.5, 0.5)) = 0
+        _SystemShadowsToLightColor ("System Shadows To Light Color", Range(0, 1)) = 0
 
         // Shading Properties
         //v.2.0.6
@@ -1065,7 +1066,7 @@ Shader "Toon/Toon" {
 //ToonCoreStart
         Pass {
             Name "ForwardLit"
-            Tags{"LightMode" = "UniversalForward"}
+            Tags{"LightMode" = "UniversalForwardOnly"} // UniversalForwardOnly so the pass also draws under the Deferred/Deferred+ renderer (Toon has no GBuffer pass)
             ZWrite[_ZWriteMode]
             Cull[_CullMode]
             Blend SrcAlpha OneMinusSrcAlpha
@@ -1099,6 +1100,8 @@ Shader "Toon/Toon" {
 #else
             #pragma multi_compile _ _FORWARD_PLUS
 #endif
+            // Surface Cache Global Illumination: InitializeBakedGI reads screen-space irradiance when this is on.
+            #pragma multi_compile_fragment _ _SCREEN_SPACE_IRRADIANCE
 
             #include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
 
@@ -1310,11 +1313,29 @@ Shader "Toon/Toon" {
             #include "Packages/com.unity.render-pipelines.universal/Shaders/DepthOnlyPass.hlsl"
             ENDHLSL
         }
+        // Used by lightmap baking and Surface Cache Global Illumination to read albedo and emission.
+        Pass
+        {
+            Name "Meta"
+            Tags{"LightMode" = "Meta"}
+
+            Cull Off
+
+            HLSLPROGRAM
+            #pragma target 2.0
+            #pragma vertex ToonVertexMeta
+            #pragma fragment ToonFragmentMeta
+            #pragma shader_feature EDITOR_VISUALIZATION
+
+            #include "URP/UniversalToonInput.hlsl"
+            #include "URP/UniversalToonMeta.hlsl"
+            ENDHLSL
+        }
         // This pass is used when drawing to a _CameraNormalsTexture texture
         Pass
         {
             Name "DepthNormals"
-            Tags{"LightMode" = "DepthNormals"}
+            Tags{"LightMode" = "DepthNormalsOnly"} // DepthNormalsOnly: deferred renderers only draw this tag for forward-only materials; forward renderers draw both
 
             ZWrite On
             Cull[_Cull]
